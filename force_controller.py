@@ -78,8 +78,13 @@ class ForceController:
             self.force_update_thread.start()
             print("力传感器数据更新线程已启动")
 
-    def get_cur_force(self, mode=0, robot_controller=None):
-        """获取当前力传感器数据 - 完全参考旧版本的读取方式"""
+    def get_cur_force(self, mode=0, robot_controller=None, for_display=False):
+        """获取当前力传感器数据
+    Args:
+        mode: 数据模式
+        robot_controller: 机械臂控制器，用于坐标变换
+        for_display: True=显示用原始数据, False=控制用滤波数据
+    """
         if not self.is_force_sensor_connected():
             return np.zeros(6)
 
@@ -105,9 +110,36 @@ class ForceController:
         force_cur_tcp[:3] = np.clip(force_cur_tcp[:3], -50, 50)
         force_cur_tcp[3:] = np.clip(force_cur_tcp[3:], -5, 5)
 
-        # 小值清零
-        force_cur_tcp[:3][np.abs(force_cur_tcp[:3]) < 1] = 0
-        force_cur_tcp[3:][np.abs(force_cur_tcp[3:]) < 0.1] = 0
+        # 根据用途决定是否小值清零
+        if not for_display:
+            # 控制用：小值清零
+            force_cur_tcp[:3][np.abs(force_cur_tcp[:3]) < 3] = 0
+            force_cur_tcp[3:][np.abs(force_cur_tcp[3:]) < 0.3] = 0
+        # # 力的限幅和小值清零
+        # force_cur_tcp[0] = np.clip(force_cur_tcp[0], -50, 50)  # Fx
+        # if np.abs(force_cur_tcp[0]) < 6:
+        #     force_cur_tcp[0] = 0
+        #
+        # force_cur_tcp[1] = np.clip(force_cur_tcp[1], -50, 50)  # Fy
+        # if np.abs(force_cur_tcp[1]) < 6:
+        #     force_cur_tcp[1] = 0
+        #
+        # force_cur_tcp[2] = np.clip(force_cur_tcp[2], -50, 50)  # Fz
+        # if np.abs(force_cur_tcp[2]) < 6:
+        #     force_cur_tcp[2] = 0
+        #
+        # # 力矩的限幅和小值清零
+        # force_cur_tcp[3] = np.clip(force_cur_tcp[3], -5, 5)  # Mx
+        # if np.abs(force_cur_tcp[3]) < 0.6:
+        #     force_cur_tcp[3] = 0
+        #
+        # force_cur_tcp[4] = np.clip(force_cur_tcp[4], -5, 5)  # My
+        # if np.abs(force_cur_tcp[4]) < 0.6:
+        #     force_cur_tcp[4] = 0
+        #
+        # force_cur_tcp[5] = np.clip(force_cur_tcp[5], -5, 5)  # Mz
+        # if np.abs(force_cur_tcp[5]) < 0.6:
+        #     force_cur_tcp[5] = 0
 
         # 根据机械臂连接状态决定是否进行坐标变换
         if robot_controller is not None:
@@ -126,6 +158,8 @@ class ForceController:
             # 进行坐标变换
             f_base = TransPose.trans_fromsensor_tobase(sensor_T, force_data)
             return f_base
+
+
         except Exception as e:
             print(f"坐标变换失败: {e}")
             return force_data  # 返回原始数据

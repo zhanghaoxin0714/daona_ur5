@@ -39,8 +39,8 @@ class RobotController(URControlAPI):
         return end_tip
 
     def go_startPose(self, start_point):#机械臂移动到目标位置
-        speed = 0.005
-        acc = 0.001
+        speed = 0.01
+        acc = 0.003
         self.moveL(start_point, asy=False, speed=speed, acc=acc)#moveL是直线运动 asy=False 同步执行模式 机械臂会等待运动完成才会返回
 
     def pose_stable(self, M, B, K):
@@ -96,9 +96,13 @@ class RobotController(URControlAPI):
         """设置力传感器控制器"""
         self.force_controller = force_controller
 
-    def get_cur_force(self, mode=0):
-        """获取当前力传感器数据"""
+    def get_cur_force(self, mode=0, for_display=False):
+        """获取当前力传感器数据
+        Args:
+            mode: 数据模式
+            for_display: True=显示用原始数据, False=控制用滤波数据
+        """
         if self.force_controller is not None:
-            return self.force_controller.get_cur_force(mode=mode, robot_controller=self)
+            return self.force_controller.get_cur_force(mode=mode, robot_controller=self, for_display=for_display)
         else:
             return np.zeros(6)

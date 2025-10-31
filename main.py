@@ -44,41 +44,42 @@ class MyUi(Ui_Widget):
         self.force_thread = None  # 初始化 力传感器获取线程
 
         # 设置默认IP地址
-        self.lineEdit_11.setText('192.168.111.10')  # 机器人IP
-        self.lineEdit_12.setText('192.168.111.20')  # 力传感器IP
+        self.lineEdit_CrobotIP.setText('192.168.111.10')  # 机器人IP
+        self.lineEdit_CforceIP.setText('192.168.111.20')  # 力传感器IP
 
         # 设置默认目标位姿
-        self.lineEdit_9.setText('0.153')  # TargetX
-        self.lineEdit_10.setText('-0.288')  # TargetY
-        self.lineEdit_14.setText('0.585')  # TargetZ
-        self.lineEdit_27.setText('1.155')  # TargetRr
-        self.lineEdit_28.setText('0.943')  # TargetRp
-        self.lineEdit_29.setText('0.173')  # TargetRy
+        self.lineEdit_CtargetX.setText('-0.419')  # TargetX
+        self.lineEdit_CtargetY.setText('-0.287')  # TargetY
+        self.lineEdit_CtargetZ.setText('0.058')  # TargetZ
+        self.lineEdit_CtargetRr.setText('1.828')  # TargetRr
+        self.lineEdit_CtargetRp.setText('2.552')  # TargetRp
+        self.lineEdit_CtargetRy.setText('-0.003')  # TargetRy
 
         # 设置导纳参数默认值
+        # 设置导纳参数默认值 - 修改输入框名称
         # M矩阵参数 (0.2, 0.2, 0.05, 0.008, 0.008, 0.01)
-        self.lineEdit_55.setText('0.200')
-        self.lineEdit_59.setText('0.200')
-        self.lineEdit_61.setText('0.050')
-        self.lineEdit_63.setText('0.008')
-        self.lineEdit_53.setText('0.008')
-        self.lineEdit_58.setText('0.010')
+        self.lineEdit_adMx.setText('0.200')
+        self.lineEdit_adMy.setText('0.200')
+        self.lineEdit_adMz.setText('0.050')
+        self.lineEdit_adMRr.setText('0.008')
+        self.lineEdit_adMRp.setText('0.008')
+        self.lineEdit_adMRy.setText('0.010')
 
         # B矩阵参数 (20, 20, 20, 20, 20, 20)
-        self.lineEdit_56.setText('20.000')
-        self.lineEdit_60.setText('20.000')
-        self.lineEdit_62.setText('20.000')
-        self.lineEdit_64.setText('20.000')
-        self.lineEdit_54.setText('20.000')
-        self.lineEdit_57.setText('20.000')
+        self.lineEdit_adBx.setText('20.000')
+        self.lineEdit_adBy.setText('20.000')
+        self.lineEdit_adBz.setText('20.000')
+        self.lineEdit_adBRr.setText('20.000')
+        self.lineEdit_adBRp.setText('20.000')
+        self.lineEdit_adBRy.setText('20.000')
 
         # K矩阵参数 (50, 50, 100, 30, 30, 30)
-        self.lineEdit_95.setText('50.000')
-        self.lineEdit_99.setText('50.000')
-        self.lineEdit_98.setText('100.000')
-        self.lineEdit_96.setText('30.000')
-        self.lineEdit_97.setText('30.000')
-        self.lineEdit_100.setText('30.000')
+        self.lineEdit_adKx.setText('50.000')
+        self.lineEdit_adKy.setText('50.000')
+        self.lineEdit_adKz.setText('100.000')
+        self.lineEdit_adKRr.setText('30.000')
+        self.lineEdit_adKRp.setText('30.000')
+        self.lineEdit_adKRy.setText('30.000')
 
          #初始化导纳控制矩阵 创建导纳控制算法需要的数学矩阵
         self.M = np.diag([0.2, 0.2, 0.05, 0.008, 0.008, 0.01])
@@ -89,22 +90,23 @@ class MyUi(Ui_Widget):
         print("初始化UI...")
 
         #绑定按钮事件
-        self.pushButton_25.clicked.connect(self.ConnectRobotBtnClicked)# 连接机械臂按钮事件
-        self.pushButton_26.clicked.connect(self.ConnectForceSensorBtnClicked)# 连接六维力传感器按钮事件
-        self.jtbutton.clicked.connect(self.EmergencyStopBtnClicked)# 急停按钮事件
-        self.pushButton_4.clicked.connect(self.saveForceData) #保存事件
-        self.pushButton_10.clicked.connect(self.startAdmControlButtonClicked) #启动导纳控制按钮
-        self.pushButton_22.clicked.connect(self.stopAdmControlButtonClicked)#停止导纳控制按钮
+        # 绑定按钮事件 - 修改按钮名称
+        self.pushButton_CRobot.clicked.connect(self.ConnectRobotBtnClicked)  # 连接机械臂按钮事件
+        self.pushButton_CForce.clicked.connect(self.ConnectForceSensorBtnClicked)  # 连接六维力传感器按钮事件
+        self.jtbutton.clicked.connect(self.EmergencyStopBtnClicked)  # 急停按钮事件
+        self.pushButton_CForceSave.clicked.connect(self.saveForceData)  # 保存事件
+        self.pushButton_adStart.clicked.connect(self.startAdmControlButtonClicked)  # 启动导纳控制按钮
+        self.pushButton_adStop.clicked.connect(self.stopAdmControlButtonClicked)  # 停止导纳控制按钮
 
         self.initFTChart() #初始化力传感器图表
 
         self.addLogs("【INFO】初始化UI成功") #记录日志
 
     def initFTChart(self):
-        self.maxForce = 3
-        self.maxTorque = 1
-        self.minForce = -3
-        self.minTorque = -1
+        self.maxForce = 50
+        self.maxTorque = 5
+        self.minForce = -50
+        self.minTorque = -5
 
         # 初始化图框
         self.forceChart = QChart()
@@ -149,18 +151,53 @@ class MyUi(Ui_Widget):
         self.TorqueAxis = QValueAxis()
         self.TimeAxis1.setRange(0, 30)
         self.TimeAxis2.setRange(0, 30)
-        self.ForceAxis.setRange(-1, 1)
-        self.TorqueAxis.setRange(-1, 1)
-        self.TimeAxis1.setTitleText("Time(s)")
-        self.TimeAxis2.setTitleText("Time(s)")
-        self.ForceAxis.setTitleText("Force(N)")
-        self.TorqueAxis.setTitleText("Torque(Nm)")
 
+        self.ForceAxis.setRange(-50, 50)
+        self.TorqueAxis.setRange(-5, 5)
+
+        # self.TimeAxis1.setTitleText("Time(s)")
+        # self.TimeAxis2.setTitleText("Time(s)")
+        # self.ForceAxis.setTitleText("Force(N)")
+        # self.TorqueAxis.setTitleText("Torque(Nm)")
+
+        # 设置坐标轴标签格式和字体
+        from PyQt5.QtGui import QFont
+
+        # 创建小字体
+        small_font = QFont()
+        small_font.setPointSize(8)
+
+        # 设置时间轴标签格式
+        self.TimeAxis1.setLabelFormat("%.1f")
+        self.TimeAxis1.setTickCount(7)  # 设置刻度数量
+        self.TimeAxis1.setLabelsFont(small_font)
+        self.TimeAxis1.setLabelsVisible(True)  # 添加这行
+
+        self.TimeAxis2.setLabelFormat("%.1f")
+        self.TimeAxis2.setTickCount(7)
+        self.TimeAxis2.setLabelsFont(small_font)
+        self.TimeAxis2.setLabelsVisible(True)  # 添加这行
+
+        # 设置力轴标签格式
+        self.ForceAxis.setLabelFormat("%.2f")
+        self.ForceAxis.setTickCount(3)
+        self.ForceAxis.setLabelsFont(small_font)
+        self.ForceAxis.setLabelsVisible(True)  # 添加这行
+
+        # 设置力矩轴标签格式
+        self.TorqueAxis.setLabelFormat("%.2f")
+        self.TorqueAxis.setTickCount(3)
+        self.TorqueAxis.setLabelsFont(small_font)
+        self.TorqueAxis.setLabelsVisible(True)  # 添加这行
 
         self.forceChart.setAxisX(self.TimeAxis1)
         self.forceChart.setAxisY(self.ForceAxis)
         self.torqueChart.setAxisX(self.TimeAxis2)
         self.torqueChart.setAxisY(self.TorqueAxis)
+
+        # # 隐藏图例
+        # self.forceChart.legend().setVisible(False)
+        # self.torqueChart.legend().setVisible(False)
 
         # 关联曲线
         self.forceXSeries.attachAxis(self.TimeAxis1)
@@ -177,9 +214,10 @@ class MyUi(Ui_Widget):
         self.torqueZSeries.attachAxis(self.TorqueAxis)
 
         # 设置更新动画
-        self.forceChart.setAnimationOptions(QChart.SeriesAnimations)
-        self.torqueChart.setAnimationOptions(QChart.SeriesAnimations)
-         # 将chart显示到界面 - 修正组件名称
+        self.forceChart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
+        self.torqueChart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
+
+        # 将chart显示到界面 - 修正组件名称
         self.plotF.setChart(self.forceChart)
         self.plotT.setChart(self.torqueChart)
 
@@ -187,7 +225,7 @@ class MyUi(Ui_Widget):
         """连接捕获机械臂"""
 
         print('连接机器人...')
-        self.targetIP = self.lineEdit_11.text()  # 获取机器人IP地址 #获取IP地址
+        self.targetIP = self.lineEdit_CrobotIP.text()  # 获取机器人IP地址 #获取IP地址
 
         # 验证机械臂IP地址有效性
         if self.isIP(self.targetIP):
@@ -207,7 +245,7 @@ class MyUi(Ui_Widget):
             self.label_139.setStyleSheet(
                 "background-color: green; border-radius: 10px; min-height: 20px; max-height: 20px; min-width: 20px; max-width: 20px;")
             # 更新六维力IP地址
-            self.lineEdit_12.setText('192.168.111.20')
+            self.lineEdit_CforceIP.setText('192.168.111.20')
 
             return True
         else:
@@ -218,7 +256,7 @@ class MyUi(Ui_Widget):
     def ConnectForceSensorBtnClicked(self):
         """单独连接力传感器"""
         try:
-            force_host = self.lineEdit_12.text()#从ui界面获取传感器ip地址
+            force_host = self.lineEdit_CforceIP.text()#从ui界面获取传感器ip地址
             if not self.isIP(force_host):#验证IP地址有效性
                 self.addLogs('【ERROR】力传感器IP地址无效')
                 return
@@ -294,28 +332,28 @@ class MyUi(Ui_Widget):
         # 更新导纳参数 - 使用字典映射
         input_controls = {
             "M": {
-                "px": (self.lineEdit_55, (0, 0)),
-                "py": (self.lineEdit_59, (1, 1)),
-                "pz": (self.lineEdit_61, (2, 2)),
-                "rx": (self.lineEdit_63, (3, 3)),
-                "ry": (self.lineEdit_53, (4, 4)),
-                "rz": (self.lineEdit_58, (5, 5))
+                "px": (self.lineEdit_adMx, (0, 0)),
+                "py": (self.lineEdit_adMy, (1, 1)),
+                "pz": (self.lineEdit_adMz, (2, 2)),
+                "rx": (self.lineEdit_adMRr, (3, 3)),
+                "ry": (self.lineEdit_adMRp, (4, 4)),
+                "rz": (self.lineEdit_adMRy, (5, 5))
             },
             "B": {
-                "px": (self.lineEdit_56, (0, 0)),
-                "py": (self.lineEdit_60, (1, 1)),
-                "pz": (self.lineEdit_62, (2, 2)),
-                "rx": (self.lineEdit_64, (3, 3)),
-                "ry": (self.lineEdit_54, (4, 4)),
-                "rz": (self.lineEdit_57, (5, 5))
+                "px": (self.lineEdit_adBx, (0, 0)),
+                "py": (self.lineEdit_adBy, (1, 1)),
+                "pz": (self.lineEdit_adBz, (2, 2)),
+                "rx": (self.lineEdit_adBRr, (3, 3)),
+                "ry": (self.lineEdit_adBRp, (4, 4)),
+                "rz": (self.lineEdit_adBRy, (5, 5))
             },
             "K": {
-                "px": (self.lineEdit_95, (0, 0)),
-                "py": (self.lineEdit_99, (1, 1)),
-                "pz": (self.lineEdit_98, (2, 2)),
-                "rx": (self.lineEdit_96, (3, 3)),
-                "ry": (self.lineEdit_97, (4, 4)),
-                "rz": (self.lineEdit_100, (5, 5))
+                "px": (self.lineEdit_adKx, (0, 0)),
+                "py": (self.lineEdit_adKy, (1, 1)),
+                "pz": (self.lineEdit_adKz, (2, 2)),
+                "rx": (self.lineEdit_adKRr, (3, 3)),
+                "ry": (self.lineEdit_adKRp, (4, 4)),
+                "rz": (self.lineEdit_adKRy, (5, 5))
             }
         }
 
@@ -336,12 +374,12 @@ class MyUi(Ui_Widget):
 #更新导纳参数
         # 获取目标位置
         try:
-            TargetX = float(self.lineEdit_9.text())
-            TargetY = float(self.lineEdit_10.text())
-            TargetZ = float(self.lineEdit_14.text())
-            TargetRr = float(self.lineEdit_27.text())
-            TargetRp = float(self.lineEdit_28.text())
-            TargetRy = float(self.lineEdit_29.text())
+            TargetX = float(self.lineEdit_CtargetX.text())
+            TargetY = float(self.lineEdit_CtargetY.text())
+            TargetZ = float(self.lineEdit_CtargetZ.text())
+            TargetRr = float(self.lineEdit_CtargetRr.text())
+            TargetRp = float(self.lineEdit_CtargetRp.text())
+            TargetRy = float(self.lineEdit_CtargetRy.text())
         except ValueError:
             self.addLogs('【ERROR】目标位置输入的数值无效，请重新输入')
             return
@@ -376,10 +414,10 @@ class MyUi(Ui_Widget):
                 self.controlThread.pause()
                 self.addLogs("【INFO】导纳控制已停止")
 
-            # 停止机器人运动
-            if self.controller is not None:
-                self.controller.stop_robot()
-                self.addLogs("【INFO】机器人已停止")
+            # # 停止机器人运动
+            # if self.controller is not None:
+            #     self.controller.stop_robot()
+            #     self.addLogs("【INFO】机器人已停止")
 
         except Exception as e:
             self.addLogs(f'【ERROR】停止导纳控制失败: {e}')
@@ -431,53 +469,53 @@ class MyUi(Ui_Widget):
         self.poseRecord.write(dataline)#将格式化的数据写入到记录文件中
 
         # 更新捕获机械臂位姿显示（位置单位：mm，姿态单位：度）
-        self.lineEdit_70.setText(f"{x * 1000:.2f}")  # X位置（m转mm）
-        self.lineEdit_73.setText(f"{y * 1000:.2f}")  # Y位置（m转mm）
-        self.lineEdit_71.setText(f"{z * 1000:.2f}")  # Z位置（m转mm）
-        self.lineEdit_67.setText(f"{np.rad2deg(rr):.2f}")  # Rr姿态（弧度转度）
-        self.lineEdit_65.setText(f"{np.rad2deg(rp):.2f}")  # Rp姿态（弧度转度）
-        self.lineEdit_68.setText(f"{np.rad2deg(ry):.2f}")  # Ry姿态（弧度转度）
+        self.lineEdit_CPoseX.setText(f"{x * 1000:.2f}")  # X位置（m转mm）
+        self.lineEdit_CPoseY.setText(f"{y * 1000:.2f}")  # Y位置（m转mm）
+        self.lineEdit_CPoseZ.setText(f"{z * 1000:.2f}")  # Z位置（m转mm）
+        self.lineEdit_CPoseRr.setText(f"{np.rad2deg(rr):.2f}")  # Rr姿态（弧度转度）
+        self.lineEdit_CPoseRp.setText(f"{np.rad2deg(rp):.2f}")  # Rp姿态（弧度转度）
+        self.lineEdit_CPoseRy.setText(f"{np.rad2deg(ry):.2f}")  # Ry姿态（弧度转度）
 
     def ShowTargetJointCallback(self, q):
         """更新机械臂关节角显示"""
         # 更新捕获机械臂关节角显示（单位：度）
-        self.lineEdit_17.setText(f"{np.rad2deg(q[0]):.2f}")  # 关节角1 弧度转为角度
-        self.lineEdit_15.setText(f"{np.rad2deg(q[1]):.2f}")  # 关节角2
-        self.lineEdit_16.setText(f"{np.rad2deg(q[2]):.2f}")  # 关节角3
-        self.lineEdit_41.setText(f"{np.rad2deg(q[3]):.2f}")  # 关节角4
-        self.lineEdit_42.setText(f"{np.rad2deg(q[4]):.2f}")  # 关节角5
-        self.lineEdit_46.setText(f"{np.rad2deg(q[5]):.2f}")  # 关节角6
+        # 更新捕获机械臂关节角显示（单位：度）
+        self.lineEdit_CJoint1.setText(f"{np.rad2deg(q[0]):.2f}")  # 关节角1 弧度转为角度
+        self.lineEdit_CJoint2.setText(f"{np.rad2deg(q[1]):.2f}")  # 关节角2
+        self.lineEdit_CJoint3.setText(f"{np.rad2deg(q[2]):.2f}")  # 关节角3
+        self.lineEdit_CJoint4.setText(f"{np.rad2deg(q[3]):.2f}")  # 关节角4
+        self.lineEdit_CJoint5.setText(f"{np.rad2deg(q[4]):.2f}")  # 关节角5
+        self.lineEdit_CJoint6.setText(f"{np.rad2deg(q[5]):.2f}")  # 关节角6
 
+    # 在 DrawFTCallback 中使用显示用数据
     def DrawFTCallback(self, ft):
         """
-        # 【作用】更新六维力传感器曲线
+        【作用】更新六维力传感器曲线
         """
-        ft = np.array(ft).reshape(6, 1)
-        self.maxForce = max(self.maxForce, np.linalg.norm(ft[0:3]))
-        self.maxTorque = max(self.maxTorque, np.linalg.norm(ft[3:6]))
+        # 使用显示用数据（原始数据，连续显示）
+        ft_display = self.controller.get_cur_force(for_display=True)
+        ft_display = np.array(ft_display).reshape(6, 1)
 
-        # 第442-447行，需要修改为：
-        self.forceXSeries.append(self.controlTime, float(ft[0]))
-        self.forceYSeries.append(self.controlTime, float(ft[1]))
-        self.forceZSeries.append(self.controlTime, float(ft[2]))
-        self.torqueXSeries.append(self.controlTime, float(ft[3]))
-        self.torqueYSeries.append(self.controlTime, float(ft[4]))
-        self.torqueZSeries.append(self.controlTime, float(ft[5]))
+        self.maxForce = max(self.maxForce, np.linalg.norm(ft_display[0:3]))
+        self.maxTorque = max(self.maxTorque, np.linalg.norm(ft_display[3:6]))
 
-        # self.forceXSeries.append(self.controlTime, ft[0])
-        # self.forceYSeries.append(self.controlTime, ft[1])
-        # self.forceZSeries.append(self.controlTime, ft[2])
-        # self.torqueXSeries.append(self.controlTime, ft[3])
-        # self.torqueYSeries.append(self.controlTime, ft[4])
-        # self.torqueZSeries.append(self.controlTime, ft[5])
+        # 更新图表数据（使用连续数据）
+        self.forceXSeries.append(self.controlTime, float(ft_display[0]))
+        self.forceYSeries.append(self.controlTime, float(ft_display[1]))
+        self.forceZSeries.append(self.controlTime, float(ft_display[2]))
+        self.torqueXSeries.append(self.controlTime, float(ft_display[3]))
+        self.torqueYSeries.append(self.controlTime, float(ft_display[4]))
+        self.torqueZSeries.append(self.controlTime, float(ft_display[5]))
 
-        self.lineEdit_109.setText(str('%.2f' % ft[0].item()))
-        self.lineEdit_110.setText(str('%.2f' % ft[1].item()))
-        self.lineEdit_141.setText(str('%.2f' % ft[2].item()))
-        self.lineEdit_142.setText(str('%.2f' % ft[3].item()))
-        self.lineEdit_143.setText(str('%.2f' % ft[4].item()))
-        self.lineEdit_144.setText(str('%.2f' % ft[5].item()))
+        # 更新文本界面
+        self.lineEdit_CFx.setText(str('%.2f' % ft_display[0].item()))
+        self.lineEdit_CFy.setText(str('%.2f' % ft_display[1].item()))
+        self.lineEdit_CFz.setText(str('%.2f' % ft_display[2].item()))
+        self.lineEdit_CTx.setText(str('%.2f' % ft_display[3].item()))
+        self.lineEdit_CTy.setText(str('%.2f' % ft_display[4].item()))
+        self.lineEdit_CTz.setText(str('%.2f' % ft_display[5].item()))
 
+        # 时间轴更新
         if self.controlTime > 30:
             self.TimeAxis1.setRange(self.controlTime - 30, self.controlTime)
             self.TimeAxis2.setRange(self.controlTime - 30, self.controlTime)
@@ -485,12 +523,10 @@ class MyUi(Ui_Widget):
             self.TimeAxis1.setRange(0, self.controlTime)
             self.TimeAxis2.setRange(0, self.controlTime)
 
-        maxRange = max(self.maxForce, self.maxTorque)
-        self.ForceAxis.setRange(-maxRange, maxRange)
-        self.TorqueAxis.setRange(-maxRange, maxRange)
-
-        dataline = f"{ft.T}" + "\n"
+        # 保存数据（使用显示用数据）
+        dataline = f"{ft_display.T}" + "\n"
         self.forceRecord.write(dataline)
+        self.force_saver.add_force_data(ft_display)
         # print(f"DrawFTCallback 接收到数据: {ft}")  # 添加调试信息
 
         # ft = np.array(ft).reshape(6, 1)#力数据转换为数组格式
