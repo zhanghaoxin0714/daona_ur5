@@ -1,0 +1,2826 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1338</width>
+    <height>843</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Widget</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>551</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">    QGroupBox {
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    QGroupBox::title {
+        subcontrol-origin: margin;
+        left: 10px;
+        padding: 0 5px;
+        color: #0078D7;
+        font-weight: bold;
+    }
+QWidget {
+    background-color: #e5e5e5;   /* 更浅的灰白色底色 */
+}
+QGroupBox QLineEdit {
+    background-color: #ffffff !important;
+    color: #222222;
+}
+/* 针对 GroupBox 内部的按钮进行设置，保持原有形状 */
+QGroupBox QPushButton {
+    background-color: #d0d0d0;   /* 一个比 #e5e5e5 稍深的灰色 */
+    color: #222222;             /* 深色文字，保证清晰 */
+    border: 1px solid #b0b0b0;   /* 边框颜色，让轮廓更分明 */
+    /* (这里没有设置 border-radius，所以按钮会是直角的) */
+    padding: 5px 10px;
+}
+
+/* 鼠标悬停效果 */
+QGroupBox QPushButton:hover {
+    background-color: #c0c0c0;   /* 悬停时颜色变深 */
+    border-color: #a0a0a0;
+}
+
+/* 鼠标按下效果 (只改变颜色) */
+QGroupBox QPushButton:pressed {
+    background-color: #b0b0b0;   /* 按下时颜色最深 */
+}</string>
+   </property>
+   <property name="title">
+    <string>初始化</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_17">
+    <item row="0" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_28">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>选择机器人</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="comboBox_7">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>25</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>捕获机器人</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>目标机器人</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <widget class="QStackedWidget" name="stackedWidget_7">
+      <property name="maximumSize">
+       <size>
+        <width>400</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="page_13">
+       <widget class="QWidget" name="layoutWidget_20">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>10</y>
+          <width>298</width>
+          <height>75</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_11">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_21">
+           <item>
+            <widget class="QLabel" name="label_139">
+             <property name="styleSheet">
+              <string notr="true">     background-color: red;
+     border-radius: 10px; /* 调整这个值，使其等于宽度的一半 */
+     min-height: 20px;
+     max-height: 20px;
+     min-width: 20px;
+     max-width: 20px;</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_CRobot">
+             <property name="text">
+              <string>连接机器人</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_CrobotIP">
+             <property name="text">
+              <string>机器人IP</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_25">
+           <item>
+            <widget class="QLabel" name="label_140">
+             <property name="styleSheet">
+              <string notr="true">     background-color: red;
+     border-radius: 10px; /* 调整这个值，使其等于宽度的一半 */
+     min-height: 20px;
+     max-height: 20px;
+     min-width: 20px;
+     max-width: 20px;</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_CForce">
+             <property name="text">
+              <string>连接六维力</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_CforceIP">
+             <property name="text">
+              <string>六维力IP</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="page_14">
+       <widget class="QWidget" name="layoutWidget_21">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>10</y>
+          <width>298</width>
+          <height>75</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_12">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_26">
+           <item>
+            <widget class="QLabel" name="label_141">
+             <property name="styleSheet">
+              <string notr="true">     background-color: red;
+     border-radius: 10px; /* 调整这个值，使其等于宽度的一半 */
+     min-height: 20px;
+     max-height: 20px;
+     min-width: 20px;
+     max-width: 20px;</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_27">
+             <property name="text">
+              <string>连接机器人</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_TrobotIP">
+             <property name="text">
+              <string>机器人IP</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_27">
+           <item>
+            <widget class="QLabel" name="label_142">
+             <property name="styleSheet">
+              <string notr="true">     background-color: red;
+     border-radius: 10px; /* 调整这个值，使其等于宽度的一半 */
+     min-height: 20px;
+     max-height: 20px;
+     min-width: 20px;
+     max-width: 20px;</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_28">
+             <property name="text">
+              <string>连接六维力</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_TforceIP">
+             <property name="text">
+              <string>六维力IP</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QPushButton" name="jtbutton">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>急停</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>630</y>
+     <width>551</width>
+     <height>191</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">    QGroupBox {
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    QGroupBox::title {
+        subcontrol-origin: margin;
+        left: 10px;
+        padding: 0 5px;
+        color: #0078D7;
+        font-weight: bold;
+    }
+QWidget {
+    background-color: #e5e5e5;   /* 更浅的灰白色底色 */
+}
+QGroupBox QPlainTextEdit {
+    background-color: #ffffff !important;
+    color: #222222;
+}</string>
+   </property>
+   <property name="title">
+    <string>日志信息</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_22">
+    <item row="0" column="0">
+     <widget class="QPlainTextEdit" name="plainTextEdit"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_6">
+   <property name="geometry">
+    <rect>
+     <x>570</x>
+     <y>620</y>
+     <width>751</width>
+     <height>201</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">    QGroupBox {
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    QGroupBox::title {
+        subcontrol-origin: margin;
+        left: 10px;
+        padding: 0 5px;
+        color: #0078D7;
+        font-weight: bold;
+    }
+QWidget {
+    background-color: #e5e5e5;   /* 更浅的灰白色底色 */
+}
+QGroupBox QLineEdit {
+    background-color: #ffffff !important;
+    color: #222222;
+}
+/* 针对 GroupBox 内部的按钮进行设置，保持原有形状 */
+QGroupBox QPushButton {
+    background-color: #d0d0d0;   /* 一个比 #e5e5e5 稍深的灰色 */
+    color: #222222;             /* 深色文字，保证清晰 */
+    border: 1px solid #b0b0b0;   /* 边框颜色，让轮廓更分明 */
+    /* (这里没有设置 border-radius，所以按钮会是直角的) */
+    padding: 5px 10px;
+}
+
+/* 鼠标悬停效果 */
+QGroupBox QPushButton:hover {
+    background-color: #c0c0c0;   /* 悬停时颜色变深 */
+    border-color: #a0a0a0;
+}
+
+/* 鼠标按下效果 (只改变颜色) */
+QGroupBox QPushButton:pressed {
+    background-color: #b0b0b0;   /* 按下时颜色最深 */
+}</string>
+   </property>
+   <property name="title">
+    <string>机械臂关节角和位姿</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_29">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout_28">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_25">
+        <item row="0" column="1">
+         <widget class="QComboBox" name="comboBox_2">
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="sizeIncrement">
+           <size>
+            <width>1</width>
+            <height>0</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string>捕获机械臂</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>目标机械臂</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pushButton_3">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>保存数据</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_91">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="sizeIncrement">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>选择机械臂</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QStackedWidget" name="stackedWidget_2">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page_5">
+         <widget class="QLabel" name="label_87">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>10</y>
+            <width>121</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>捕获机械臂关节角</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_90">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>70</y>
+            <width>111</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>捕获机械臂位姿</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>40</y>
+            <width>721</width>
+            <height>27</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_55">
+             <property name="text">
+              <string>1</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_CJoint1"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_50">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="lineEdit_CJoint2"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="label_54">
+             <property name="text">
+              <string>3</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="lineEdit_CJoint3"/>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_53">
+             <property name="text">
+              <string>4</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <widget class="QLineEdit" name="lineEdit_CJoint4"/>
+           </item>
+           <item row="0" column="8">
+            <widget class="QLabel" name="label_46">
+             <property name="text">
+              <string>5</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="9">
+            <widget class="QLineEdit" name="lineEdit_CJoint5"/>
+           </item>
+           <item row="0" column="10">
+            <widget class="QLabel" name="label_48">
+             <property name="text">
+              <string>6</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="11">
+            <widget class="QLineEdit" name="lineEdit_CJoint6"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>100</y>
+            <width>721</width>
+            <height>27</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_78">
+             <property name="text">
+              <string>X</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_CPoseX"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_77">
+             <property name="text">
+              <string>Y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="lineEdit_CPoseY"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="label_82">
+             <property name="text">
+              <string>Z</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="lineEdit_CPoseZ"/>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_89">
+             <property name="text">
+              <string>Rx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <widget class="QLineEdit" name="lineEdit_CPoseRr"/>
+           </item>
+           <item row="0" column="8">
+            <widget class="QLabel" name="label_80">
+             <property name="text">
+              <string>Ry</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="9">
+            <widget class="QLineEdit" name="lineEdit_CPoseRp"/>
+           </item>
+           <item row="0" column="10">
+            <widget class="QLabel" name="label_79">
+             <property name="text">
+              <string>Rz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="11">
+            <widget class="QLineEdit" name="lineEdit_CPoseRy"/>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_4">
+         <widget class="QLabel" name="label_61">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>10</y>
+            <width>131</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>目标机械臂关节角</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_62">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>70</y>
+            <width>121</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>目标机械臂位姿</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_5">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>40</y>
+            <width>721</width>
+            <height>27</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="label_120">
+             <property name="text">
+              <string>1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_102"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_121">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_103"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_122">
+             <property name="text">
+              <string>3</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_104"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_123">
+             <property name="text">
+              <string>4</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_105"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_124">
+             <property name="text">
+              <string>5</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_106"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_125">
+             <property name="text">
+              <string>6</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_107"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_126">
+             <property name="text">
+              <string>7</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_108"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_4">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>100</y>
+            <width>721</width>
+            <height>27</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_8">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_81">
+             <property name="text">
+              <string>X</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_72"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_83">
+             <property name="text">
+              <string>Y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="lineEdit_74"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="label_84">
+             <property name="text">
+              <string>Z</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="lineEdit_75"/>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_110">
+             <property name="text">
+              <string>Rr</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <widget class="QLineEdit" name="lineEdit_69"/>
+           </item>
+           <item row="0" column="8">
+            <widget class="QLabel" name="label_85">
+             <property name="text">
+              <string>Rp</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="9">
+            <widget class="QLineEdit" name="lineEdit_66"/>
+           </item>
+           <item row="0" column="10">
+            <widget class="QLabel" name="label_86">
+             <property name="text">
+              <string>Ry</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="11">
+            <widget class="QLineEdit" name="lineEdit_76"/>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_4">
+   <property name="geometry">
+    <rect>
+     <x>570</x>
+     <y>60</y>
+     <width>751</width>
+     <height>231</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">    QGroupBox {
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    QGroupBox::title {
+        subcontrol-origin: margin;
+        left: 10px;
+        padding: 0 5px;
+        color: #0078D7;
+        font-weight: bold;
+    }
+QWidget {
+    background-color: #e5e5e5;   /* 更浅的灰白色底色 */
+}
+QGroupBox QLineEdit {
+    background-color: #ffffff !important;
+    color: #222222;
+}
+QGroupBox QListView {
+    background-color: #ffffff !important;
+    color: #222222;
+}
+/* 针对 GroupBox 内部的按钮进行设置，保持原有形状 */
+QGroupBox QPushButton {
+    background-color: #d0d0d0;   /* 一个比 #e5e5e5 稍深的灰色 */
+    color: #222222;             /* 深色文字，保证清晰 */
+    border: 1px solid #b0b0b0;   /* 边框颜色，让轮廓更分明 */
+    /* (这里没有设置 border-radius，所以按钮会是直角的) */
+    padding: 5px 10px;
+}
+
+/* 鼠标悬停效果 */
+QGroupBox QPushButton:hover {
+    background-color: #c0c0c0;   /* 悬停时颜色变深 */
+    border-color: #a0a0a0;
+}
+
+/* 鼠标按下效果 (只改变颜色) */
+QGroupBox QPushButton:pressed {
+    background-color: #b0b0b0;   /* 按下时颜色最深 */
+}</string>
+   </property>
+   <property name="title">
+    <string>视觉伺服</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_33">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout_23">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="pushButton_15">
+        <property name="text">
+         <string>启动伺服控制</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButton_6">
+        <property name="text">
+         <string>目标观测</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <layout class="QGridLayout" name="gridLayout_16">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_15">
+          <item>
+           <widget class="QLabel" name="label_117">
+            <property name="styleSheet">
+             <string notr="true">     background-color: red;
+     border-radius: 10px; /* 调整这个值，使其等于宽度的一半 */
+     min-height: 20px;
+     max-height: 20px;
+     min-width: 20px;
+     max-width: 20px;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <widget class="QPushButton" name="pushButton_16">
+              <property name="text">
+               <string>启动摄像头</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_11">
+              <property name="text">
+               <string>关闭摄像头</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="4">
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="1">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="5">
+         <layout class="QGridLayout" name="gridLayout_13">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_118">
+            <property name="text">
+             <string>K</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEdit_101">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="3">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="2">
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <layout class="QGridLayout" name="gridLayout_14">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_112">
+          <property name="text">
+           <string>X</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="lineEdit_89"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_114">
+          <property name="text">
+           <string>Rr</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLineEdit" name="lineEdit_92"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_113">
+          <property name="text">
+           <string>Y</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEdit_91"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_115">
+          <property name="text">
+           <string>Rp</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLineEdit" name="lineEdit_93"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Z</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEdit_90"/>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="label_116">
+          <property name="text">
+           <string>Ry</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLineEdit" name="lineEdit_94"/>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="minimumSize">
+         <size>
+          <width>450</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">   background-color: white;</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_5">
+   <property name="geometry">
+    <rect>
+     <x>570</x>
+     <y>290</y>
+     <width>751</width>
+     <height>331</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">    QGroupBox {
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    QGroupBox::title {
+        subcontrol-origin: margin;
+        left: 10px;
+        padding: 0 5px;
+        color: #0078D7;
+        font-weight: bold;
+    }
+QWidget {
+    background-color: #e5e5e5;   /* 更浅的灰白色底色 */
+}
+QGroupBox QLineEdit {
+    background-color: #ffffff !important;
+    color: #222222;
+}
+QGroupBox QListView {
+    background-color: #ffffff !important;
+    color: #222222;
+}
+/* 针对 GroupBox 内部的按钮进行设置，保持原有形状 */
+QGroupBox QPushButton {
+    background-color: #d0d0d0;   /* 一个比 #e5e5e5 稍深的灰色 */
+    color: #222222;             /* 深色文字，保证清晰 */
+    border: 1px solid #b0b0b0;   /* 边框颜色，让轮廓更分明 */
+    /* (这里没有设置 border-radius，所以按钮会是直角的) */
+    padding: 5px 10px;
+}
+
+/* 鼠标悬停效果 */
+QGroupBox QPushButton:hover {
+    background-color: #c0c0c0;   /* 悬停时颜色变深 */
+    border-color: #a0a0a0;
+}
+
+/* 鼠标按下效果 (只改变颜色) */
+QGroupBox QPushButton:pressed {
+    background-color: #b0b0b0;   /* 按下时颜色最深 */
+}</string>
+   </property>
+   <property name="title">
+    <string>力和力矩</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_30">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout_27">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_24">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_108">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>选择机械臂</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="comboBox_3">
+          <property name="maximumSize">
+           <size>
+            <width>140</width>
+            <height>25</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string>捕获机械臂</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>目标机械臂</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="pushButton_CForceSave">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>保存数据</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QStackedWidget" name="stackedWidget_3">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page_8">
+         <widget class="QWidget" name="layoutWidget_18">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>131</width>
+            <height>235</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_26">
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_CFx"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEdit_CFy"/>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lineEdit_CTx"/>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="lineEdit_CTy"/>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_149">
+             <property name="text">
+              <string>Tz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_148">
+             <property name="text">
+              <string>Ty</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_131">
+             <property name="text">
+              <string>Tx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="lineEdit_CTz"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_130">
+             <property name="text">
+              <string>Fz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEdit_CFz"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_129">
+             <property name="text">
+              <string>Fy</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_128">
+             <property name="text">
+              <string>Fx</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="layoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>10</y>
+            <width>551</width>
+            <height>241</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_31">
+           <item row="0" column="0">
+            <widget class="QChartView" name="plotF">
+             <property name="font">
+              <font>
+               <stylestrategy>PreferAntialias</stylestrategy>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">   background-color: white;</string>
+             </property>
+             <property name="backgroundBrush">
+              <brush brushstyle="NoBrush">
+               <color alpha="0">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </property>
+             <property name="foregroundBrush">
+              <brush brushstyle="NoBrush">
+               <color alpha="0">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QChartView" name="plotT">
+             <property name="font">
+              <font>
+               <stylestrategy>PreferAntialias</stylestrategy>
+              </font>
+             </property>
+             <property name="autoFillBackground">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">   background-color: white;</string>
+             </property>
+             <property name="backgroundBrush">
+              <brush brushstyle="NoBrush">
+               <color alpha="0">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </property>
+             <property name="foregroundBrush">
+              <brush brushstyle="NoBrush">
+               <color alpha="0">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_9">
+         <widget class="QWidget" name="layoutWidget_8">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>131</width>
+            <height>231</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_15">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_101">
+             <property name="text">
+              <string>Fx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_83"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_107">
+             <property name="text">
+              <string>Fy</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEdit_87"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_100">
+             <property name="text">
+              <string>Fz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEdit_85"/>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_104">
+             <property name="text">
+              <string>Tx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lineEdit_88"/>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_106">
+             <property name="text">
+              <string>Ty</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="lineEdit_86"/>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_102">
+             <property name="text">
+              <string>Tz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="lineEdit_84"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_3">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>0</y>
+            <width>541</width>
+            <height>251</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_32">
+           <item row="0" column="0">
+            <widget class="QWidget" name="widget_3" native="true">
+             <property name="styleSheet">
+              <string notr="true">   background-color: white;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QWidget" name="widget_4" native="true">
+             <property name="styleSheet">
+              <string notr="true">   background-color: white;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="label_49">
+   <property name="geometry">
+    <rect>
+     <x>-17</x>
+     <y>0</y>
+     <width>1381</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QWidget {
+    background-color: #e5e5e5;   /* 更浅的灰白色底色 */
+}</string>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:700;&quot;&gt;空间非合作目标捕获地面模拟验证平台&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="indent">
+    <number>-3</number>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>210</y>
+     <width>551</width>
+     <height>421</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">    QGroupBox {
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    QGroupBox::title {
+        subcontrol-origin: margin;
+        left: 10px;
+        padding: 0 5px;
+        color: #0078D7;
+        font-weight: bold;
+    }
+QWidget {
+    background-color: #e5e5e5;   /* 更浅的灰白色底色 */
+}
+QGroupBox QLineEdit {
+    background-color: #ffffff !important;
+    color: #222222;
+}
+/* 针对 GroupBox 内部的按钮进行设置，保持原有形状 */
+QGroupBox QPushButton {
+    background-color: #d0d0d0;   /* 一个比 #e5e5e5 稍深的灰色 */
+    color: #222222;             /* 深色文字，保证清晰 */
+    border: 1px solid #b0b0b0;   /* 边框颜色，让轮廓更分明 */
+    /* (这里没有设置 border-radius，所以按钮会是直角的) */
+    padding: 5px 10px;
+}
+
+/* 鼠标悬停效果 */
+QGroupBox QPushButton:hover {
+    background-color: #c0c0c0;   /* 悬停时颜色变深 */
+    border-color: #a0a0a0;
+}
+
+/* 鼠标按下效果 (只改变颜色) */
+QGroupBox QPushButton:pressed {
+    background-color: #b0b0b0;   /* 按下时颜色最深 */
+}</string>
+   </property>
+   <property name="title">
+    <string>控制器</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_18">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QLabel" name="label_109">
+          <property name="text">
+           <string>捕获机械臂</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>25</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string>位置控制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>速度控制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>轨迹控制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>导纳控制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>虚拟力设置</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QStackedWidget" name="stackedWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page">
+         <widget class="QWidget" name="layoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>3</x>
+            <y>10</y>
+            <width>511</width>
+            <height>131</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_35">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>目标位姿</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_16">
+               <property name="text">
+                <string>速度</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="lineEdit_19"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_12">
+               <property name="text">
+                <string>加速度</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="lineEdit_20"/>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="pushButton_8">
+             <property name="text">
+              <string>目标运动</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="pushButton_adStart">
+             <property name="text">
+              <string>启动导纳</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QPushButton" name="pushButton_adStop">
+             <property name="text">
+              <string>停止</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="5">
+            <layout class="QGridLayout" name="gridLayout_34">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>X</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="lineEdit_CtargetX"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_11">
+               <property name="text">
+                <string>Y</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="lineEdit_CtargetY"/>
+             </item>
+             <item row="0" column="4">
+              <widget class="QLabel" name="label_13">
+               <property name="text">
+                <string>Z</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5">
+              <widget class="QLineEdit" name="lineEdit_CtargetZ"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>Rr</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="lineEdit_CtargetRr"/>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="label_15">
+               <property name="text">
+                <string>Rp</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QLineEdit" name="lineEdit_CtargetRp"/>
+             </item>
+             <item row="1" column="4">
+              <widget class="QLabel" name="label_28">
+               <property name="text">
+                <string>Ry</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5">
+              <widget class="QLineEdit" name="lineEdit_CtargetRy"/>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_3">
+         <widget class="QWidget" name="layoutWidget_13">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>491</width>
+            <height>131</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="label_29">
+             <property name="text">
+              <string>速度控制</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>Vx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEdit_30"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="label_31">
+             <property name="text">
+              <string>Vy</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="lineEdit_31"/>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLabel" name="label_32">
+             <property name="text">
+              <string>Vz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="5">
+            <widget class="QLineEdit" name="lineEdit_32"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_33">
+             <property name="text">
+              <string>Rx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEdit_34"/>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="label_34">
+             <property name="text">
+              <string>Ry</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLineEdit" name="lineEdit_35"/>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLabel" name="label_36">
+             <property name="text">
+              <string>Rz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="5">
+            <widget class="QLineEdit" name="lineEdit_37"/>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="pushButton_9">
+             <property name="text">
+              <string>开始运动</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QPushButton" name="pushButton_17">
+             <property name="text">
+              <string>停止</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_2">
+         <widget class="QLabel" name="label_47">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>71</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>轨迹控制</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_14">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>50</y>
+            <width>471</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QLabel" name="label_52">
+             <property name="text">
+              <string>末端轨迹</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_45"/>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QPushButton" name="pushButton_12">
+               <property name="text">
+                <string>导入</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_13">
+               <property name="text">
+                <string>删除</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QPushButton" name="pushButton_14">
+          <property name="geometry">
+           <rect>
+            <x>220</x>
+            <y>10</y>
+            <width>120</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>开始</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_10">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>110</y>
+            <width>473</width>
+            <height>27</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_9">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_132">
+             <property name="text">
+              <string>X</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_111"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_133">
+             <property name="text">
+              <string>Y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="lineEdit_112"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="label_134">
+             <property name="text">
+              <string>Z</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="lineEdit_113"/>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_135">
+             <property name="text">
+              <string>Rr</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <widget class="QLineEdit" name="lineEdit_114"/>
+           </item>
+           <item row="0" column="8">
+            <widget class="QLabel" name="label_136">
+             <property name="text">
+              <string>Rp</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="9">
+            <widget class="QLineEdit" name="lineEdit_115"/>
+           </item>
+           <item row="0" column="10">
+            <widget class="QLabel" name="label_137">
+             <property name="text">
+              <string>Ry</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="11">
+            <widget class="QLineEdit" name="lineEdit_116"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QPushButton" name="pushButton_18">
+          <property name="geometry">
+           <rect>
+            <x>350</x>
+            <y>10</y>
+            <width>120</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>停止</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_6">
+         <widget class="QLabel" name="label_69">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>131</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>导纳控制参数配置</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_16">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>30</y>
+            <width>511</width>
+            <height>111</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_64">
+             <property name="text">
+              <string>M</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_adMx"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLineEdit" name="lineEdit_adMy"/>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="lineEdit_adMz"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLineEdit" name="lineEdit_adMRr"/>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="lineEdit_adMRp"/>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLineEdit" name="lineEdit_adMRy"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_65">
+             <property name="text">
+              <string>B</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEdit_adBx"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLineEdit" name="lineEdit_adBy"/>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="lineEdit_adBz"/>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLineEdit" name="lineEdit_adBRr"/>
+           </item>
+           <item row="1" column="5">
+            <widget class="QLineEdit" name="lineEdit_adBRp"/>
+           </item>
+           <item row="1" column="6">
+            <widget class="QLineEdit" name="lineEdit_adBRy"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_66">
+             <property name="text">
+              <string>K</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEdit_adKx"/>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLineEdit" name="lineEdit_adKy"/>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLineEdit" name="lineEdit_adKz"/>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLineEdit" name="lineEdit_adKRr"/>
+           </item>
+           <item row="2" column="5">
+            <widget class="QLineEdit" name="lineEdit_adKRp"/>
+           </item>
+           <item row="2" column="6">
+            <widget class="QLineEdit" name="lineEdit_adKRy"/>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_7">
+         <widget class="QWidget" name="layoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>491</width>
+            <height>131</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_40">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>虚拟力设置</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="PushButtonstartxn">
+             <property name="text">
+              <string>启动虚拟力</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="PushButtonclosexn">
+             <property name="text">
+              <string>关闭虚拟力</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="3">
+            <layout class="QGridLayout" name="gridLayout_39">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_41">
+               <property name="text">
+                <string>Fx</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="BHxnfx"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_39">
+               <property name="text">
+                <string>Fy</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="BHxnfy"/>
+             </item>
+             <item row="0" column="4">
+              <widget class="QLabel" name="label_35">
+               <property name="text">
+                <string>Fz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5">
+              <widget class="QLineEdit" name="BHxnfz"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_37">
+               <property name="text">
+                <string>Tx</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="BHxntx"/>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="label_38">
+               <property name="text">
+                <string>Ty</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QLineEdit" name="BHxnty"/>
+             </item>
+             <item row="1" column="4">
+              <widget class="QLabel" name="label_40">
+               <property name="text">
+                <string>Tz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5">
+              <widget class="QLineEdit" name="BHxntz"/>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0">
+     <layout class="QGridLayout" name="gridLayout_19">
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_22">
+        <item>
+         <widget class="QLabel" name="label_184">
+          <property name="text">
+           <string>目标机械臂</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_6">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>25</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string>位置控制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>速度控制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>轨迹控制</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>导纳控制</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QStackedWidget" name="stackedWidget_6">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page_25">
+         <widget class="QWidget" name="layoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>2</x>
+            <y>10</y>
+            <width>511</width>
+            <height>131</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_37">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_185">
+             <property name="text">
+              <string>目标位姿</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <layout class="QGridLayout" name="gridLayout_20">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_17">
+               <property name="text">
+                <string>速度</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="lineEdit_22"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_18">
+               <property name="text">
+                <string>加速度</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="lineEdit_21"/>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="pushButton_38">
+             <property name="text">
+              <string>目标运动</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="pushButton_21">
+             <property name="text">
+              <string>启动导纳</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QPushButton" name="pushButton_23">
+             <property name="text">
+              <string>停止</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="5">
+            <layout class="QGridLayout" name="gridLayout_36">
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_186">
+               <property name="text">
+                <string>X</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="lineEdit_146"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_187">
+               <property name="text">
+                <string>Y</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLineEdit" name="lineEdit_147"/>
+             </item>
+             <item row="0" column="4">
+              <widget class="QLabel" name="label_188">
+               <property name="text">
+                <string>Z</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5">
+              <widget class="QLineEdit" name="lineEdit_148"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_189">
+               <property name="text">
+                <string>Rr</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="lineEdit_149"/>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLabel" name="label_190">
+               <property name="text">
+                <string>Rp</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QLineEdit" name="lineEdit_150"/>
+             </item>
+             <item row="1" column="4">
+              <widget class="QLabel" name="label_191">
+               <property name="text">
+                <string>Ry</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5">
+              <widget class="QLineEdit" name="lineEdit_151"/>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_26">
+         <widget class="QWidget" name="layoutWidget_24">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>491</width>
+            <height>131</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_21">
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="label_192">
+             <property name="text">
+              <string>速度控制</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_193">
+             <property name="text">
+              <string>Vx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEdit_152"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="label_194">
+             <property name="text">
+              <string>Vy</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="lineEdit_153"/>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLabel" name="label_195">
+             <property name="text">
+              <string>Vz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="5">
+            <widget class="QLineEdit" name="lineEdit_154"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_196">
+             <property name="text">
+              <string>Rx</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEdit_155"/>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="label_197">
+             <property name="text">
+              <string>Ry</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLineEdit" name="lineEdit_156"/>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLabel" name="label_198">
+             <property name="text">
+              <string>Rz</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="5">
+            <widget class="QLineEdit" name="lineEdit_157"/>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="pushButton_39">
+             <property name="text">
+              <string>开始运动</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QPushButton" name="pushButton_20">
+             <property name="text">
+              <string>停止</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_27">
+         <widget class="QLabel" name="label_199">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>71</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>轨迹控制</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_25">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>50</y>
+            <width>471</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_23">
+           <item>
+            <widget class="QLabel" name="label_200">
+             <property name="text">
+              <string>末端轨迹</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_158"/>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_12">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_24">
+             <item>
+              <widget class="QPushButton" name="pushButton_40">
+               <property name="text">
+                <string>导入</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_41">
+               <property name="text">
+                <string>删除</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QPushButton" name="pushButton_42">
+          <property name="geometry">
+           <rect>
+            <x>220</x>
+            <y>10</y>
+            <width>120</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>开始</string>
+          </property>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_15">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>110</y>
+            <width>473</width>
+            <height>27</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_10">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_138">
+             <property name="text">
+              <string>X</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_117"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_143">
+             <property name="text">
+              <string>Y</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="lineEdit_118"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="label_144">
+             <property name="text">
+              <string>Z</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="lineEdit_137"/>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_145">
+             <property name="text">
+              <string>Rr</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <widget class="QLineEdit" name="lineEdit_138"/>
+           </item>
+           <item row="0" column="8">
+            <widget class="QLabel" name="label_146">
+             <property name="text">
+              <string>Rp</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="9">
+            <widget class="QLineEdit" name="lineEdit_139"/>
+           </item>
+           <item row="0" column="10">
+            <widget class="QLabel" name="label_147">
+             <property name="text">
+              <string>Ry</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="11">
+            <widget class="QLineEdit" name="lineEdit_140"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QPushButton" name="pushButton_19">
+          <property name="geometry">
+           <rect>
+            <x>350</x>
+            <y>10</y>
+            <width>120</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>停止</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QWidget" name="page_28">
+         <widget class="QWidget" name="layoutWidget_17">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>30</y>
+            <width>511</width>
+            <height>111</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_72">
+             <property name="text">
+              <string>M</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEdit_119"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLineEdit" name="lineEdit_120"/>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="lineEdit_121"/>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLineEdit" name="lineEdit_122"/>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="lineEdit_123"/>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLineEdit" name="lineEdit_124"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_73">
+             <property name="text">
+              <string>B</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEdit_125"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLineEdit" name="lineEdit_126"/>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="lineEdit_127"/>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLineEdit" name="lineEdit_128"/>
+           </item>
+           <item row="1" column="5">
+            <widget class="QLineEdit" name="lineEdit_129"/>
+           </item>
+           <item row="1" column="6">
+            <widget class="QLineEdit" name="lineEdit_130"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_74">
+             <property name="text">
+              <string>K</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEdit_131"/>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLineEdit" name="lineEdit_132"/>
+           </item>
+           <item row="2" column="3">
+            <widget class="QLineEdit" name="lineEdit_133"/>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLineEdit" name="lineEdit_134"/>
+           </item>
+           <item row="2" column="5">
+            <widget class="QLineEdit" name="lineEdit_135"/>
+           </item>
+           <item row="2" column="6">
+            <widget class="QLineEdit" name="lineEdit_136"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QLabel" name="label_70">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>131</width>
+            <height>19</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>导纳控制参数配置</string>
+          </property>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>---------------------------------------------------------------------------------------</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>PyQt5.QtChart</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>comboBox_7</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>stackedWidget_7</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>401</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>365</x>
+     <y>145</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>stackedWidget</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>446</x>
+     <y>247</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>301</x>
+     <y>308</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox_6</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>stackedWidget_6</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>545</x>
+     <y>468</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>284</x>
+     <y>488</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox_3</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>stackedWidget_3</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1013</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>735</x>
+     <y>385</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox_2</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>stackedWidget_2</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1013</x>
+     <y>671</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>788</x>
+     <y>697</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
