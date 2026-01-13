@@ -3,10 +3,8 @@ import numpy as np
 import time
 import copy
 from scipy.spatial.transform import Rotation
-from TransPose import TransPose
-from Robots.URControlAPI import URControlAPI
-from force_controller import ForceController
-from controller.AdmittancePoseController import AdmittancePoseController
+from tool.TransPose import TransPose
+from robot.Robots.URControlAPI import URControlAPI
 
 class RobotController(URControlAPI):
     """独立的机械臂控制器 - 只迁移ad_control中的部分"""
@@ -59,37 +57,6 @@ class RobotController(URControlAPI):
         # self.moveL(self.control,False,2,0.5)
         self.servoL(self.control)
 
-    # def pose_stable(self, M, B, K):
-    #     """
-    #     定点位姿导纳控制 - 改进版（让末端随力移动）
-    #     """
-    #     if self.adcontrol is None:
-    #         raise RuntimeError("导纳控制器未初始化，请先启动导纳控制")
-    #
-    #     self.update_status()  # 更新当前状态
-    #
-    #     # 关键改进1：设置固定目标位姿（启动时的位姿）
-    #     # 如果目标位姿未设置，使用当前位姿作为固定目标
-    #     if not hasattr(self, 'pose_target_fixed') or self.pose_target_fixed is None:
-    #         self.pose_target_fixed = np.array(self.get_ee_pose()).copy()
-    #
-    #     # 关键改进2：使用固定目标位姿，而不是当前位姿
-    #     # 这样当有力作用时，会产生位姿误差，让末端移动
-    #     control_e = self.adcontrol.cal_increment(
-    #         M=M, B=B, K=K,
-    #         ft=self.f_base,
-    #         pose=self.pose,
-    #         pose_target=self.pose_target_fixed  # 使用固定目标位姿
-    #     )
-    #
-    #     # 计算新的控制位置
-    #     self.control = copy.deepcopy(self.pose)
-    #     self.control = self.add_pose_increment(self.control, control_e)
-    #
-    #     # 关键改进3：优化 servoL 参数，让运动更快更平滑
-    #     # speed: 0.1 m/s（从0.05提高到0.1，快2倍）
-    #     # acc: 0.05 m/s²（从0.02提高到0.05，快2.5倍）
-    #     self.servoL(self.control)
 
     def pose_stable_velocityBased(self, M, B, K):
         """

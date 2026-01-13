@@ -39,7 +39,6 @@ class ForceDataThread(QtCore.QThread):
             if self.force_sensor is not None and self.force_sensor.is_force_sensor_connected():
                 #机械臂控制器存在 力传感器已连接
                 ft = self.force_sensor.get_cur_force(robot_controller=self.robot_controller,for_display = True)#获取力传感器数据
-
                 ft = np.array(ft).reshape(-1).tolist()#转换列表形式
 
                 # print(ft);

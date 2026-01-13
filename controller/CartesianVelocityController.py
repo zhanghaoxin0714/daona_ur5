@@ -1,5 +1,5 @@
 import numpy as np
-from Robots.URControlAPI import URControlAPI
+from robot.Robots.URControlAPI import URControlAPI
 
 
 class CartesianVelocityController:

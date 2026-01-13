@@ -1,128 +1,78 @@
 # -*- coding: utf-8 -*-
+
+# ==================== 标准库导入 ====================
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5 import QtCore  # 需要添加这个导入
-from Qt.widget import Ui_Widget
 import time
+import threading
 import ipaddress
-import numpy as np  # 需要添加这个导入
+import cv2
 from datetime import datetime
+# ==================== 第三方库导入 ====================
+import numpy as np
+# ==================== PyQt5 相关导入 ====================
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import Qt
+from PyQt5 import QtCore
 from PyQt5.QtChart import *
 from PyQt5.QtCore import QMargins
-from save_force_data import ForceDataSaver #保存数据按钮
-# main.py
-#机械臂数据刷新线程
-from robot_controller import RobotController
-from robot_data_thread import RobotDataThread
-#六维力连接控制器
-from force_controller import ForceController  # 添加这行
-# 六维力数据刷新线程
-from force_data_thread import ForceDataThread
-# 在 main.py 文件开头添加：
-from admittance_thread import AdControlThread
+# ==================== 项目内部UI相关 ====================
+from Qt.widget import Ui_Widget
+# ==================== 项目内部模块导入 - 机械臂相关 ====================
+from robot.robot_controller import RobotController
+from robot.robot_data_thread import RobotDataThread
+from robot.admittance_thread import AdControlThread#导纳控制
+from robot.trajectory_manager import TrajectoryManager#轨迹跟踪相关
+from robot.trajectory_control_thread import TrajectoryControlThread
 from controller.AdmittancePoseController import AdmittancePoseController
-# 其他导入...
-import threading
-from Robots.URControlAPI import URControlAPI
-from controller.AdmittancePoseController import AdmittancePoseController
+from robot.Robots.URControlAPI import URControlAPI
+# ==================== 项目内部模块导入 - 力传感器相关 ====================
+from ATI.force_controller import ForceController
+from ATI.force_data_thread import ForceDataThread
+from ATI.save_force_data import ForceDataSaver
+# ==================== 项目内部模块导入 - 详细实现相关 ====================
+from detail import Detail
+# ==================== 项目内部模块导入 - 视觉伺服相关 ====================
+from visual_servo.camera_handler import CameraHandler
+from visual_servo.camera_preview_thread import CameraPreviewThread
 
 class MyUi(Ui_Widget):
     def __init__(self):
-        super().setupUi(MainWindow) #设置ui界面 调用父类Ui_Widget的setupUi函数
-        self.logs = [] #初始化日志列表 创建一个空列表存储日志信息
-        self.initUi() #初始化ui事件 绑定按钮事件 初始化图表
-        self.force_saver = ForceDataSaver()  # 初始化力数据保存器 将力传感器数据保存excel
-        # 控制器和线程初始化
-        self.controller = None  # 机械臂控制器  先创建容易存放将来对象 None意味还没有连接机械臂
+        # ==================== UI初始化 ====================
+        super().setupUi(MainWindow)  # 设置ui界面，调用父类Ui_Widget的setupUi函数
+        # ==================== 基础数据初始化 ====================
+        self.logs = []  # 初始化日志列表，创建一个空列表存储日志信息
+        # ==================== 创建Detail实例 ====================
+        self.detail = Detail(self)  # 传入self作为ui_instance
+        self.initUi()  # 初始化ui事件，绑定按钮事件，初始化图表
+        # ==================== 控制器初始化 ====================
+        self.controller = None  # 机械臂控制器，先创建容易存放将来对象，None意味还没有连接机械臂
+        self.force_controller = None  # 力传感器控制器
+        self.force_saver = ForceDataSaver()  # 初始化力数据保存器，将力传感器数据保存excel
+        # ==================== 线程初始化 ====================
         self.controlThread = None  # 导纳控制线程
         self.robotDataThread = None  # 机械臂数据线程
         self.forceDataThread = None  # 力传感器数据线程
-        self.force_controller = None  # 力传感器控制器
-
-        # 初始化力传感器相关变量
-        self.ati_force = None  # 初始化 力传感器线程
-        self.force_thread = None  # 初始化 力传感器获取线程
-
-        #初始化速度控制相关变量
         self.velocity_control_thread = None  # 速度控制线程
+        self.ati_force = None  # 初始化力传感器线程
+        self.force_thread = None  # 初始化力传感器获取线程
+        # =================== 状态标志初始化 ====================
         self.is_velocity_control_running = False  # 速度控制运行标志
-
         self.xvni = False  # 虚拟力开关，默认关闭
+        # ==================== 轨迹管理初始化 ====================
+        self.trajectory_manager = TrajectoryManager()  # 轨迹数据管理器
+        self.trajectory_control_thread = None  # 轨迹跟踪控制线程
 
-        # 设置默认IP地址
-        self.lineEdit_CrobotIP.setText('192.168.111.10')  # 机器人IP
-        self.lineEdit_CforceIP.setText('192.168.111.20')  # 力传感器IP
 
-        # 设置默认目标位姿
-        self.lineEdit_CtargetX.setText('-0.340')  # TargetX
-        self.lineEdit_CtargetY.setText('-0.114')  # TargetY
-        self.lineEdit_CtargetZ.setText('0.447')  # TargetZ
-        self.lineEdit_CtargetRr.setText('2.687')  # TargetRr
-        self.lineEdit_CtargetRp.setText('1.395')  # TargetRp
-        self.lineEdit_CtargetRy.setText('0.061')  # TargetRy
+        # ==================== UI默认值设置 ====================
+        self.detail.init_ui_default_values()  # 初始化UI默认值
+        # ==================== 导纳控制矩阵初始化 ====================
+        self.detail.init_admittance_matrices()  # 初始化导纳控制矩阵
 
-        # 设置导纳参数默认值
-        # 设置导纳参数默认值 - 修改输入框名称
-        #M矩阵参数 (0.2, 0.2, 0.05, 0.008, 0.008, 0.01)
-        self.lineEdit_adMx.setText('0.200')
-        self.lineEdit_adMy.setText('0.200')
-        self.lineEdit_adMz.setText('0.020')
-        self.lineEdit_adMRr.setText('0.008')
-        self.lineEdit_adMRp.setText('0.008')
-        self.lineEdit_adMRy.setText('0.010')
-
-        # B矩阵参数 (20, 20, 20, 20, 20, 20)
-        self.lineEdit_adBx.setText('20.000')
-        self.lineEdit_adBy.setText('20.000')
-        self.lineEdit_adBz.setText('20.000')
-        self.lineEdit_adBRr.setText('20.000')
-        self.lineEdit_adBRp.setText('20.000')
-        self.lineEdit_adBRy.setText('20.000')
-
-        # K矩阵参数 (50, 50, 100, 30, 30, 30)
-        self.lineEdit_adKx.setText('40.000')
-        self.lineEdit_adKy.setText('40.000')
-        self.lineEdit_adKz.setText('80.000')
-        self.lineEdit_adKRr.setText('30.000')
-        self.lineEdit_adKRp.setText('30.000')
-        self.lineEdit_adKRy.setText('30.000')
-
-        # 虚拟力输入框默认值
-        self.BHxnfx.setText('0')
-        self.BHxnfy.setText('0')
-        self.BHxnfz.setText('-3')
-        self.BHxntx.setText('0')
-        self.BHxnty.setText('0')
-        self.BHxntz.setText('0')
-        # 设置导纳参数默认值 - 更柔顺的参数
-        # # M矩阵参数 - 减小质量，加快响应但更平滑
-        # self.lineEdit_adMx.setText('0.1')  # 从0.2改为0.1
-        # self.lineEdit_adMy.setText('0.1')  # 从0.2改为0.1
-        # self.lineEdit_adMz.setText('0.02')  # 从0.05改为0.02
-        # self.lineEdit_adMRr.setText('0.005')  # 从0.008改为0.005
-        # self.lineEdit_adMRp.setText('0.005')  # 从0.008改为0.005
-        # self.lineEdit_adMRy.setText('0.005')  # 从0.01改为0.005
-        #
-        # # B矩阵参数 - 增大阻尼，减少晃动
-        # self.lineEdit_adBx.setText('80')  # 从20改为30
-        # self.lineEdit_adBy.setText('80')  # 从20改为30
-        # self.lineEdit_adBz.setText('80')  # 从20改为30
-        # self.lineEdit_adBRr.setText('15')  # 从20改为25
-        # self.lineEdit_adBRp.setText('15')  # 从20改为25
-        # self.lineEdit_adBRy.setText('15')  # 从20改为25
-        #
-        # # K矩阵参数 - 可以适当减小
-        # self.lineEdit_adKx.setText('30')  # 从50改为30
-        # self.lineEdit_adKy.setText('30')  # 从50改为30
-        # self.lineEdit_adKz.setText('50')  # 从100改为50
-        # self.lineEdit_adKRr.setText('20')  # 从30改为20
-        # self.lineEdit_adKRp.setText('20')  # 从30改为20
-        # self.lineEdit_adKRy.setText('20')  # 从30改为20
-
-         #初始化导纳控制矩阵 创建导纳控制算法需要的数学矩阵
-        self.M = np.diag([0.2, 0.2, 0.05, 0.008, 0.008, 0.01])
-        self.B = np.diag([20, 20, 20, 20, 20, 20])
-        self.K = np.diag([50, 50, 100, 30, 30, 30])
+        # ==================== 视觉伺服相关初始化 ====================
+        # ==================== 视觉伺服相关初始化 ====================
+        self.camera_handler = None  # 相机处理器
+        self.camera_preview_thread = None  # 相机预览线程
 
     def initUi(self):
         print("初始化UI...")
@@ -139,140 +89,24 @@ class MyUi(Ui_Widget):
         # 速度控制按钮绑定
         self.pushButton_9.clicked.connect(self.startVelocityControlBtnClicked)  # 开始速度控制
         self.pushButton_17.clicked.connect(self.stopVelocityControlBtnClicked)  # 停止速度控制
-
         self.PushButtonstartxn.clicked.connect(self.startxn) #开启虚拟力
         self.PushButtonclosexn.clicked.connect(self.closexn) #关闭虚拟力
-
-
-        self.initFTChart() #初始化力传感器图表
-
+        # 轨迹控制按钮绑定
+        self.pushButton_12.clicked.connect(self.importTrajectoryBtnClicked)  # 导入轨迹按钮
+        self.pushButton_13.clicked.connect(self.deleteTrajectoryBtnClicked)  # 删除轨迹按钮
+        self.pushButton_14.clicked.connect(self.startTrajectoryBtnClicked)  # 开始轨迹跟踪按钮
+        self.pushButton_18.clicked.connect(self.stopTrajectoryBtnClicked)  # 停止轨迹跟踪按钮
+        # 视觉伺服相关按钮绑定
+        self.pushButton_16.clicked.connect(self.startCameraBtnClicked)  # 启动摄像头按钮
+        self.pushButton_11.clicked.connect(self.closeCameraBtnClicked)  # 关闭摄像头按钮
+        self.detail.init_ft_chart()  # 初始化力传感器图表
         self.addLogs("【INFO】初始化UI成功") #记录日志
 
-    def initFTChart(self):
-        self.maxForce = 50
-        self.maxTorque = 5
-        self.minForce = -50
-        self.minTorque = -5
-
-        # 初始化图框
-        self.forceChart = QChart()
-        self.torqueChart = QChart()
-        self.forceChart.setBackgroundVisible(False)
-        self.torqueChart.setBackgroundVisible(False)
-        self.forceChart.setMargins(QMargins(0, 0, 0, 0))
-        self.torqueChart.setMargins(QMargins(0, 0, 0, 0))
-        self.forceChart.layout().setContentsMargins(0, 0, 0, 0)
-        self.torqueChart.layout().setContentsMargins(0, 0, 0, 0)
-        self.forceChart.setBackgroundRoundness(0)
-        self.torqueChart.setBackgroundRoundness(0)
-
-        # 初始化曲线
-        self.forceXSeries = QLineSeries()
-        self.forceYSeries = QLineSeries()
-        self.forceZSeries = QLineSeries()
-        self.torqueXSeries = QLineSeries()
-        self.torqueYSeries = QLineSeries()
-        self.torqueZSeries = QLineSeries()
-
-        # 设置曲线名称
-        self.forceXSeries.setName("Fx")
-        self.forceYSeries.setName("Fy")
-        self.forceZSeries.setName("Fz")
-        self.torqueXSeries.setName("Tx")
-        self.torqueYSeries.setName("Ty")
-        self.torqueZSeries.setName("Tz")
-
-        # 将曲线添加到图框中
-        self.forceChart.addSeries(self.forceXSeries)
-        self.forceChart.addSeries(self.forceYSeries)
-        self.forceChart.addSeries(self.forceZSeries)
-        self.torqueChart.addSeries(self.torqueXSeries)
-        self.torqueChart.addSeries(self.torqueYSeries)
-        self.torqueChart.addSeries(self.torqueZSeries)
-
-        # 设置坐标轴
-        self.TimeAxis1 = QValueAxis()
-        self.TimeAxis2 = QValueAxis()
-        self.ForceAxis = QValueAxis()
-        self.TorqueAxis = QValueAxis()
-        self.TimeAxis1.setRange(0, 30)
-        self.TimeAxis2.setRange(0, 30)
-
-        self.ForceAxis.setRange(-50, 50)
-        self.TorqueAxis.setRange(-5, 5)
-
-        # self.TimeAxis1.setTitleText("Time(s)")
-        # self.TimeAxis2.setTitleText("Time(s)")
-        # self.ForceAxis.setTitleText("Force(N)")
-        # self.TorqueAxis.setTitleText("Torque(Nm)")
-
-        # 设置坐标轴标签格式和字体
-        from PyQt5.QtGui import QFont
-
-        # 创建小字体
-        small_font = QFont()
-        small_font.setPointSize(8)
-
-        # 设置时间轴标签格式
-        self.TimeAxis1.setLabelFormat("%.1f")
-        self.TimeAxis1.setTickCount(7)  # 设置刻度数量
-        self.TimeAxis1.setLabelsFont(small_font)
-        self.TimeAxis1.setLabelsVisible(True)  # 添加这行
-
-        self.TimeAxis2.setLabelFormat("%.1f")
-        self.TimeAxis2.setTickCount(7)
-        self.TimeAxis2.setLabelsFont(small_font)
-        self.TimeAxis2.setLabelsVisible(True)  # 添加这行
-
-        # 设置力轴标签格式
-        self.ForceAxis.setLabelFormat("%.2f")
-        self.ForceAxis.setTickCount(3)
-        self.ForceAxis.setLabelsFont(small_font)
-        self.ForceAxis.setLabelsVisible(True)  # 添加这行
-
-        # 设置力矩轴标签格式
-        self.TorqueAxis.setLabelFormat("%.2f")
-        self.TorqueAxis.setTickCount(3)
-        self.TorqueAxis.setLabelsFont(small_font)
-        self.TorqueAxis.setLabelsVisible(True)  # 添加这行
-
-        self.forceChart.setAxisX(self.TimeAxis1)
-        self.forceChart.setAxisY(self.ForceAxis)
-        self.torqueChart.setAxisX(self.TimeAxis2)
-        self.torqueChart.setAxisY(self.TorqueAxis)
-
-        # # 隐藏图例
-        # self.forceChart.legend().setVisible(False)
-        # self.torqueChart.legend().setVisible(False)
-
-        # 关联曲线
-        self.forceXSeries.attachAxis(self.TimeAxis1)
-        self.forceXSeries.attachAxis(self.ForceAxis)
-        self.forceYSeries.attachAxis(self.TimeAxis1)
-        self.forceYSeries.attachAxis(self.ForceAxis)
-        self.forceZSeries.attachAxis(self.TimeAxis1)
-        self.forceZSeries.attachAxis(self.ForceAxis)
-        self.torqueXSeries.attachAxis(self.TimeAxis2)
-        self.torqueXSeries.attachAxis(self.TorqueAxis)
-        self.torqueYSeries.attachAxis(self.TimeAxis2)
-        self.torqueYSeries.attachAxis(self.TorqueAxis)
-        self.torqueZSeries.attachAxis(self.TimeAxis2)
-        self.torqueZSeries.attachAxis(self.TorqueAxis)
-
-        # 设置更新动画
-        self.forceChart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
-        self.torqueChart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
-
-        # 将chart显示到界面 - 修正组件名称
-        self.plotF.setChart(self.forceChart)
-        self.plotT.setChart(self.torqueChart)
 
     def ConnectRobotBtnClicked(self):
         """连接捕获机械臂"""
-
         print('连接机器人...')
         self.targetIP = self.lineEdit_CrobotIP.text()  # 获取机器人IP地址 #获取IP地址
-
         # 验证机械臂IP地址有效性
         if self.isIP(self.targetIP):
             try:
@@ -284,7 +118,7 @@ class MyUi(Ui_Widget):
                 return
             self.addLogs('【INFO】连接目标星机械臂，IP为：', self.targetIP)#日志添加信息
             # 记录开始时间
-            self.StartTime = time.time()#获取当前时间戳，记录连接成功的时间
+            self.Robot_StartTime = time.time()#获取当前时间戳，记录连接成功的时间
             # 启动机械臂数据刷新线程
             self.start_robot_data_thread()
             # 更新连接状态指示器（红色变为绿色）
@@ -292,7 +126,6 @@ class MyUi(Ui_Widget):
                 "background-color: green; border-radius: 10px; min-height: 20px; max-height: 20px; min-width: 20px; max-width: 20px;")
             # 更新六维力IP地址
             self.lineEdit_CforceIP.setText('192.168.111.20')
-
             return True
         else:
             print('IP地址无效，请重新输入')
@@ -306,12 +139,12 @@ class MyUi(Ui_Widget):
             if not self.isIP(force_host):#验证IP地址有效性
                 self.addLogs('【ERROR】力传感器IP地址无效')
                 return
-
              # 创建力传感器控制器（在构造函数中自动连接）
             self.force_controller = ForceController(force_host)
-
             if self.force_controller.is_connected:
                 self.addLogs('【INFO】连接力传感器成功，IP为：', force_host)
+                # 记录开始时间
+                self.Force_StartTime = time.time()  # 获取当前时间戳，记录连接成功的时间
                 # 启动力传感器数据记录功能
                 self.force_saver.start_recording()
                 # 启动力传感器数据刷新线程
@@ -321,8 +154,6 @@ class MyUi(Ui_Widget):
                     "background-color: green; border-radius: 10px; min-height: 20px; max-height: 20px; min-width: 20px; max-width: 20px;")
             else:
                 self.addLogs('【WARNING】力传感器连接失败')
-
-
         except Exception as e:
             self.addLogs('【ERROR】连接力传感器失败：', str(e))
             # 更新力传感器状态指示器为红色
@@ -334,18 +165,15 @@ class MyUi(Ui_Widget):
         """启动机械臂数据刷新线程"""
         if self.controller and self.forceDataThread is None:
             #检查六维力控制器是否创建 检查数据刷新线程是否未启动
-
             # 创建位姿数据记录文件
             self.posePath = f"res/pose/{str(datetime.now())[:-7].replace(':', '-')}.txt"
             self.poseRecord = open(self.posePath, "a+")#创建并打开数据文件
-
             # 开启机械臂数据刷新线程
             self.robotDataThread = RobotDataThread(self.controller)#创建机械臂数据获取线程 传入机械臂控制器
             self.robotDataThread._signal_pose.connect(self.ShowTargetEEPoseCallback)#将线程的位姿信号连接到ui更新函数
             self.robotDataThread._signal_joint.connect(self.ShowTargetJointCallback)#将线程的关节信号连接到ui更新函数
             self.robotDataThread._signal_timestamp.connect(self.RefreshTimeCallback)#将线程的时间戳信号连接到ui更新函数
             self.robotDataThread.start()#启动线程
-
             self.addLogs('【INFO】机械臂数据刷新线程已启动')
 
     def start_force_data_thread(self):
@@ -355,7 +183,6 @@ class MyUi(Ui_Widget):
             # 创建力传感器数据记录文件
             self.forcePath = f"res/force/{str(datetime.now())[:-7].replace(':', '-')}.txt"
             self.forceRecord = open(self.forcePath, "a+")
-
             # 开启力传感器数据刷新线程
             self.forceDataThread = ForceDataThread(self.force_controller,self.controller)  # 创建线程对象传入机械臂控制器
             self.forceDataThread._signal_ft.connect(self.DrawFTCallback)  # 将力传感器数据连接ui
@@ -418,7 +245,7 @@ class MyUi(Ui_Widget):
 
             # 创建或更新速度控制线程
             if self.velocity_control_thread is None:#速度线程没有启动
-                from velocity_control_thread import VelocityControlThread
+                from robot.velocity_control_thread import VelocityControlThread
                 self.velocity_control_thread = VelocityControlThread(
                     controller=self.controller,
                     target_velocity=target_velocity
@@ -620,7 +447,6 @@ class MyUi(Ui_Widget):
         # 记录数据到文件
         dataline = f"{x}, {y}, {z}, {rr}, {rp}, {ry}" + "\n"#将机械臂位姿数据格式化为字符串
         self.poseRecord.write(dataline)#将格式化的数据写入到记录文件中
-
         # 更新捕获机械臂位姿显示（位置单位：mm，姿态单位：度）
         self.lineEdit_CPoseX.setText(f"{x * 1000:.2f}")  # X位置（m转mm）
         self.lineEdit_CPoseY.setText(f"{y * 1000:.2f}")  # Y位置（m转mm）
@@ -680,53 +506,14 @@ class MyUi(Ui_Widget):
         dataline = f"{ft_display.T}" + "\n"
         self.forceRecord.write(dataline)
         self.force_saver.add_force_data(ft_display)
-        # print(f"DrawFTCallback 接收到数据: {ft}")  # 添加调试信息
 
-        # ft = np.array(ft).reshape(6, 1)#力数据转换为数组格式
-        # self.maxForce = max(self.maxForce, np.linalg.norm(ft[0:3]))#取最大值
-        # self.maxTorque = max(self.maxTorque, np.linalg.norm(ft[3:6]))
-        # #更新图表数据
-        #
-        # self.forceXSeries.append(self.controlTime, ft[0].item())
-        # self.forceYSeries.append(self.controlTime, ft[1].item())
-        # self.forceZSeries.append(self.controlTime, ft[2].item())
-        # self.torqueXSeries.append(self.controlTime, ft[3].item())
-        # self.torqueYSeries.append(self.controlTime, ft[4].item())
-        # self.torqueZSeries.append(self.controlTime, ft[5].item())
-        # #更新文本界面
-        #
-        # self.lineEdit_109.setText(str('%.2f' % ft[0].item()))
-        # self.lineEdit_110.setText(str('%.2f' % ft[1].item()))
-        # self.lineEdit_141.setText(str('%.2f' % ft[2].item()))
-        # self.lineEdit_142.setText(str('%.2f' % ft[3].item()))
-        # self.lineEdit_143.setText(str('%.2f' % ft[4].item()))
-        # self.lineEdit_144.setText(str('%.2f' % ft[5].item()))
-        # #调整时间轴范围
-        #
-        # if self.controlTime > 30:
-        #     self.TimeAxis1.setRange(self.controlTime - 30, self.controlTime)
-        #     self.TimeAxis2.setRange(self.controlTime - 30, self.controlTime)
-        # else:
-        #     self.TimeAxis1.setRange(0, self.controlTime)
-        #     self.TimeAxis2.setRange(0, self.controlTime)
-        #     #根据最大值调整力轴范围
-        #
-        # maxRange = max(self.maxForce, self.maxTorque)
-        # self.ForceAxis.setRange(-maxRange, maxRange)
-        # self.TorqueAxis.setRange(-maxRange, maxRange)
-        # if hasattr(self, 'forceRecord') and self.forceRecord is not None:
-        #
-        #     dataline = f"{ft.T}" + "\n"
-        #     self.forceRecord.write(dataline)
-        #
-        # self.force_saver.add_force_data(ft) #保存六维力数据
 
     def RefreshTimeCallback(self, refreshTime):
         """
         【作用】更新界面中的绘图时间
         """
         self.refreshTime = refreshTime#保存当前时间戳
-        self.controlTime = refreshTime - self.StartTime#当前时间-程序启动时间戳 记录运行时间
+        self.controlTime = refreshTime - self.Robot_StartTime#当前时间-程序启动时间戳 记录运行时间
         # print('TimeStamp:', self.controlTime)
 
     def saveForceData(self):
@@ -751,28 +538,347 @@ class MyUi(Ui_Widget):
         """在后台线程中保存数据"""
         try:
             self.addLogs('【INFO】开始保存数据...')
-
             # 检查数据
             if not hasattr(self.force_saver, 'force_data'):
                 self.addLogs('【ERROR】force_saver.force_data 不存在')
                 return
-
             if not self.force_saver.force_data:
                 self.addLogs('【ERROR】没有可保存的数据')
                 return
-
             self.addLogs(f'【INFO】准备保存 {len(self.force_saver.force_data)} 条数据')
-
             # 调用保存方法
             self.force_saver.save_to_excel(MainWindow)
-
             self.addLogs('【INFO】力传感器数据保存完成')
-
         except Exception as e:
             # 简化异常处理
             error_msg = f'【ERROR】保存数据失败: {str(e)}'
             self.addLogs(error_msg)
             print(f"保存失败: {e}")
+
+    def importTrajectoryBtnClicked(self):
+        """导入轨迹按钮事件 - 测试用"""
+        try:
+            # 打开文件选择对话框
+            file_path, _ = QFileDialog.getOpenFileName(
+                MainWindow,  # 父窗口
+                "选择轨迹文件",  # 对话框标题
+                "",  # 默认目录（空表示当前目录）
+                "文本文件 (*.txt);;所有文件 (*.*)"  # 文件过滤器
+            )
+
+            # 检查用户是否取消了选择
+            if not file_path:
+                self.addLogs("【INFO】用户取消了文件选择")
+                return
+
+            # 更新UI中的文件路径显示框（lineEdit_45）
+            self.lineEdit_45.setText(file_path)
+
+            # 调用轨迹管理器加载文件
+            success, message = self.trajectory_manager.load_from_file(file_path)
+
+            # 根据结果显示日志
+            if success:
+                # 获取轨迹信息
+                info = self.trajectory_manager.get_trajectory_info()
+
+                # 显示成功消息
+                self.addLogs(message)
+
+                # 显示详细信息
+                self.addLogs(f"【INFO】轨迹信息:")
+                self.addLogs(f"  - 点数: {info['num_points']}")
+                self.addLogs(
+                    f"  - 起点位置: [{info['start_position'][0]:.4f}, {info['start_position'][1]:.4f}, {info['start_position'][2]:.4f}]")
+                self.addLogs(
+                    f"  - 终点位置: [{info['end_position'][0]:.4f}, {info['end_position'][1]:.4f}, {info['end_position'][2]:.4f}]")
+                self.addLogs(f"  - 轨迹总长度: {info['total_length']:.4f} m")
+                self.addLogs(f"  - 平均步长: {info['average_step_size']:.4f} m")
+
+                # 测试：打印轨迹数据的前几行
+                trajectory = self.trajectory_manager.get_trajectory()
+                if trajectory is not None:
+                    self.addLogs(f"【DEBUG】轨迹数据形状: {trajectory.shape}")
+                    self.addLogs(f"【DEBUG】前3个点:")
+                    for i in range(min(3, len(trajectory))):
+                        self.addLogs(f"  点{i + 1}: {trajectory[i]}")
+            else:
+                # 显示错误消息
+                self.addLogs(f"【ERROR】{message}")
+                # 清空文件路径显示
+                self.lineEdit_45.setText("")
+
+        except Exception as e:
+            self.addLogs(f"【ERROR】导入轨迹失败: {str(e)}")
+            import traceback
+            self.addLogs(f"【ERROR】详细错误: {traceback.format_exc()}")
+            self.lineEdit_45.setText("")
+
+    def deleteTrajectoryBtnClicked(self):
+        """删除轨迹按钮事件 - 测试用"""
+        try:
+            if self.trajectory_manager.has_trajectory():
+                # 获取轨迹名称
+                trajectory_name = self.trajectory_manager.get_trajectory_name()
+
+                # 清除轨迹数据
+                self.trajectory_manager.clear_trajectory()
+
+                # 清空UI显示
+                self.lineEdit_45.setText("")
+
+                # 显示日志
+                self.addLogs(f"【INFO】已删除轨迹: {trajectory_name}")
+            else:
+                self.addLogs("【WARNING】当前没有加载的轨迹")
+
+        except Exception as e:
+            self.addLogs(f"【ERROR】删除轨迹失败: {str(e)}")
+
+    def startTrajectoryBtnClicked(self):
+        """开始轨迹跟踪按钮事件"""
+        speed_value = 0.02  # 移动速度
+        acc_value = 0.004  # 加速度
+        dt_value = 0.2  # 点间隔
+
+        try:
+            # 1. 检查机械臂是否连接
+            if self.controller is None:
+                self.addLogs('【WARNING】请先连接机械臂')
+                return
+
+            # 2. 检查是否有轨迹数据
+            if not self.trajectory_manager.has_trajectory():
+                self.addLogs('【WARNING】请先导入轨迹文件')
+                return
+
+            # 3. 检查是否已有轨迹跟踪线程在运行
+            if self.trajectory_control_thread is not None and self.trajectory_control_thread.isRunning():
+                self.addLogs('【WARNING】轨迹跟踪已在运行中')
+                return
+
+            # 4. 获取轨迹数据
+            trajectory = self.trajectory_manager.get_trajectory()
+            if trajectory is None:
+                self.addLogs('【ERROR】无法获取轨迹数据')
+                return
+
+            # 5. 创建轨迹跟踪线程
+            # 参数说明：
+            #   controller: 机械臂控制器
+            #   trajectory: 轨迹数据
+            #   speed: 移动速度（默认0.05 m/s）
+            #   acc: 加速度（默认0.02 m/s²）
+            #   dt: 每个点之间的时间间隔（默认0.1秒，可以根据需要调整）
+            self.trajectory_control_thread = TrajectoryControlThread(
+                controller=self.controller,  # 测试模式下即使没有连接也可以传None
+                trajectory=trajectory,
+                speed=speed_value,  # 可以调整速度，值越大移动越快
+                acc=acc_value,  # 可以调整加速度
+                dt=dt_value,  # 每个点之间的等待时间（秒），可以调整
+                test_mode=False  # 设置为True，启用测试模式
+            )
+
+            # 6. 连接信号（用于接收线程的消息）
+            self.trajectory_control_thread.signal_progress.connect(self.onTrajectoryProgress)
+            self.trajectory_control_thread.signal_finished.connect(self.onTrajectoryFinished)
+            self.trajectory_control_thread.signal_point_reached.connect(self.onTrajectoryPointReached)  # 添加这行
+
+            # 7. 启动线程
+            self.trajectory_control_thread.start()
+
+            # 8. 显示日志
+            # 8. 显示日志
+            num_points = len(trajectory)
+            self.addLogs(f'【INFO】开始轨迹跟踪，共 {num_points} 个点')
+            self.addLogs(f'【INFO】速度: {speed_value} m/s, 加速度: {acc_value} m/s², 点间隔: {dt_value} 秒')
+            # self.addLogs('【INFO】测试模式：不会实际控制机械臂，只打印信息')
+
+        except Exception as e:
+            self.addLogs(f'【ERROR】启动轨迹跟踪失败: {str(e)}')
+            import traceback
+            self.addLogs(f'【ERROR】详细错误: {traceback.format_exc()}')
+
+    def stopTrajectoryBtnClicked(self):
+        """停止轨迹跟踪按钮事件"""
+        try:
+            # 1. 检查线程是否存在且正在运行
+            if self.trajectory_control_thread is not None and self.trajectory_control_thread.isRunning():
+                # 2. 停止线程
+                self.trajectory_control_thread.stop()
+                self.trajectory_control_thread.wait()  # 等待线程结束
+
+                # 3. 停止机械臂运动
+                if self.controller is not None:
+                    self.controller.stop_robot()
+
+                self.addLogs('【INFO】轨迹跟踪已停止')
+            else:
+                self.addLogs('【WARNING】轨迹跟踪未在运行')
+
+        except Exception as e:
+            self.addLogs(f'【ERROR】停止轨迹跟踪失败: {str(e)}')
+
+    def onTrajectoryProgress(self, current_point, total_points):
+        """轨迹跟踪进度回调函数"""
+        # 这个函数会在每移动到一个点时被调用
+        # current_point: 当前已完成的点数
+        # total_points: 总点数
+        progress_percent = (current_point / total_points) * 100
+        # 可以选择在日志中显示进度，或者更新进度条（如果有的话）
+        self.addLogs(f'【INFO】轨迹跟踪进度: {current_point}/{total_points} ({progress_percent:.1f}%)')
+
+    def onTrajectoryFinished(self, success, message):
+        """轨迹跟踪完成回调函数"""
+        # 这个函数会在轨迹跟踪完成或出错时被调用
+        if success:
+            self.addLogs(f'【INFO】{message}')
+        else:
+            self.addLogs(f'【ERROR】{message}')
+
+        # 清理线程引用
+        if self.trajectory_control_thread is not None:
+            self.trajectory_control_thread = None
+
+    def onTrajectoryPointReached(self, point_index, pose):
+        """轨迹点到达回调函数 - 测试用"""
+        # 这个函数会在每到达一个点时被调用（测试模式）
+        # point_index: 点序号（从1开始）
+        # pose: 位姿数组 [x, y, z, rx, ry, rz]
+
+        # 格式化位姿显示
+        pose_str = f"[{pose[0]:.4f}, {pose[1]:.4f}, {pose[2]:.4f}, {pose[3]:.4f}, {pose[4]:.4f}, {pose[5]:.4f}]"
+
+        # 在日志中显示
+        self.addLogs(f"第 {point_index} 个点已到达，位姿为: {pose_str}")
+
+        # 同时在控制台打印（方便调试）
+        print(f"第 {point_index} 个点已到达，位姿为: {pose_str}")
+
+    def startCameraBtnClicked(self):
+        """启动摄像头按钮点击事件"""
+        try:
+
+            # 2. 检查是否已经初始化过相机
+            if self.camera_handler is None:
+                # 创建相机处理器
+                self.camera_handler = CameraHandler()
+                # 初始化相机
+                self.camera_handler.initialize()
+                self.addLogs('【INFO】摄像头初始化成功')
+            else:
+                self.addLogs('【INFO】摄像头已经启动')
+                return
+
+            # 3. 设置QLabel属性，让图像自动缩放填充
+            # if hasattr(self, 'label_2'):
+            #     # 设置自动缩放内容，填充整个QLabel
+            #     self.label_2.setScaledContents(True)
+            #         # 可选：设置对齐方式
+            #     from PyQt5.QtCore import Qt
+            #     self.label_2.setAlignment(Qt.AlignCenter)
+
+            # 3. 创建并启动预览线程
+            if self.camera_preview_thread is None or not self.camera_preview_thread.isRunning():
+                self.camera_preview_thread = CameraPreviewThread(self.camera_handler)
+
+                # 连接信号：当线程发送图像时，更新UI显示
+                self.camera_preview_thread.signal_image.connect(self.updateCameraDisplay)
+                self.camera_preview_thread.signal_error.connect(lambda msg: self.addLogs(f'【ERROR】{msg}'))
+
+                # 启动线程
+                self.camera_preview_thread.start()
+                self.addLogs('【INFO】摄像头预览已启动')
+                self.label_117.setStyleSheet(
+                    "background-color: green; border-radius: 10px; min-height: 20px; max-height: 20px; min-width: 20px; max-width: 20px;")
+            else:
+                self.addLogs('【INFO】摄像头预览已在运行')
+
+        except Exception as e:
+            self.addLogs(f'【ERROR】启动摄像头失败: {str(e)}')
+            # 确保出错时清理资源
+            if self.camera_handler:
+                try:
+                    self.camera_handler.stop()
+                except:
+                    pass
+                self.camera_handler = None
+
+    def closeCameraBtnClicked(self):
+        """关闭摄像头按钮点击事件"""
+        try:
+            # 1. 停止预览线程
+            if self.camera_preview_thread is not None and self.camera_preview_thread.isRunning():
+                self.camera_preview_thread.stop()
+                self.camera_preview_thread.wait()  # 等待线程结束
+                self.camera_preview_thread = None
+            # 2. 停止相机
+            if self.camera_handler is not None:
+                self.camera_handler.stop()
+                self.camera_handler = None
+
+                # 清空显示
+                if hasattr(self, 'label_2'):
+                    self.label_2.clear()
+
+                self.addLogs('【INFO】摄像头已关闭')
+                self.label_117.setStyleSheet(
+                    "background-color: red; border-radius: 10px; min-height: 20px; max-height: 20px; min-width: 20px; max-width: 20px;")
+            else:
+                self.addLogs('【WARNING】摄像头未启动')
+
+        except Exception as e:
+            self.addLogs(f'【ERROR】关闭摄像头失败: {str(e)}')
+
+    def updateCameraDisplay(self, cv_image):
+        """更新摄像头显示 - 保持宽高比，最大化显示"""
+        try:
+            import cv2
+            from PyQt5.QtGui import QImage, QPixmap
+            from PyQt5.QtCore import Qt
+
+            # 转换BGR到RGB
+            rgb_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+            height, width, channel = rgb_image.shape
+            bytes_per_line = 3 * width
+
+            # 创建QImage
+            q_image = QImage(rgb_image.data, width, height, bytes_per_line, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_image)
+
+            # 获取QLabel尺寸
+            label_width = self.label_2.width()
+            label_height = self.label_2.height()
+
+            if label_width > 0 and label_height > 0:
+                # 计算缩放比例，保持宽高比
+                image_ratio = width / height
+                label_ratio = label_width / label_height
+
+                if image_ratio > label_ratio:
+                    # 图像更宽，以宽度为准
+                    scaled_width = label_width
+                    scaled_height = int(label_width / image_ratio)
+                else:
+                    # 图像更高，以高度为准
+                    scaled_width = int(label_height * image_ratio)
+                    scaled_height = label_height
+
+                # 缩放并显示
+                scaled_pixmap = pixmap.scaled(
+                    scaled_width,
+                    scaled_height,
+                    Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation
+                )
+                self.label_2.setPixmap(scaled_pixmap)
+                self.label_2.setAlignment(Qt.AlignCenter)
+            else:
+                self.label_2.setPixmap(pixmap)
+
+        except Exception as e:
+            pass
+
 
 if __name__ == '__main__':#Python的标准入口点检查
     # 创建Qt界面

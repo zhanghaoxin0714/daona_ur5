@@ -2,8 +2,7 @@
 import numpy as np
 import threading
 import time
-from TransPose import TransPose
-from ati_force_sensor.ForceUpdateThread import ForceUpdateThread
+from tool.TransPose import TransPose
 from ati_force_sensor.rpi_ati_net_ft import rpi_ati_net_ft  # 添加这个导入
 from ati_force_sensor.Force import Force  # 导入Force类
 
@@ -12,16 +11,13 @@ class ForceController:
     """独立的力传感器控制器"""
 
     def __init__(self, force_host=None):
-        # # 初始化力传感器相关变量
-        # self.ati_force = None  # 存储力传感器线程对象
-        # self.force_thread = None  # 存储力传感器获取线程
-        # # 传感器偏移量
-        # # self.delta_ur_sensor = np.array([0, 0, 35 / 1000, 0, 0, -0.262])
-        # # self.sensor_deltaT = TransPose.getT_fromRotvec(self.delta_ur_sensor)
-        # # 初始力
-        # self.force_init = np.zeros(6)
+
         self.delta_ur_sensor = np.array([0, 0, 35 / 1000, 0, 0, -0.262])
         self.sensor_deltaT = TransPose.getT_fromRotvec(self.delta_ur_sensor)#定义传感器位置
+        # 工装末端到被动端中心点的偏移量（基坐标系下）
+        # 格式：[dx, dy, dz] 单位：米
+        # 暂时设为 a，后续需要根据实际测量值更新
+        self.tool_tip_to_passive_offset = np.array([0, 0, -0.2])  # 示例：假设被动端在工装末端下方20cm
 
         self.netft = None#六维力连接实例
         self.is_connected = False#连接标志位
@@ -40,7 +36,6 @@ class ForceController:
 
     def connect_force_sensor(self, force_host):
         """单独连接力传感器"""
-
         """内部连接方法"""
         try:
             self.netft = rpi_ati_net_ft.NET_FT(force_host)
@@ -62,7 +57,6 @@ class ForceController:
 
     def is_force_sensor_connected(self):
         """获取力传感器数据
-
     Args:
         mode: 数据模式
         robot_controller: 机械臂控制器，用于坐标变换
@@ -134,9 +128,6 @@ class ForceController:
                 force_cur_tcp[4] = 0
             if np.abs(force_cur_tcp[5]) < 0.3:
                 force_cur_tcp[5] = 0
-
-
-
             # force_cur_tcp[:3][np.abs(force_cur_tcp[:3]) < 3] = 0
             # force_cur_tcp[3:][np.abs(force_cur_tcp[3:]) < 0.3] = 0
                 # 如果 xvni 参数为 None，使用类属性
@@ -145,6 +136,8 @@ class ForceController:
         # 根据机械臂连接状态决定是否进行坐标变换
         if robot_controller is not None:
             fg = self._transform_to_base_coordinate(force_cur_tcp, robot_controller)
+            # 第二步：传感器中心基坐标系 → 被动端基坐标系（新增）
+            # fg_passive = self.transform_force_to_passive_end(fg, robot_controller)
             # print(fg)
             # print(self.virtual_force)
             if xvni:
@@ -175,14 +168,56 @@ class ForceController:
             print(f"坐标变换失败: {e}")
             return force_data  # 返回原始数据
 
+    def transform_force_to_passive_end(self, force_sensor_center, robot_controller):
+        """
+        将传感器中心处的力（基坐标系下）转换到被动端中心位置（基坐标系下）
+
+        Args:
+            force_sensor_center: 传感器中心处的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz] (基坐标系下)
+            robot_controller: 机械臂控制器，用于获取传感器位姿
+
+        Returns:
+            force_passive_end: 被动端中心处的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz] (基坐标系下)
+        """
+        try:
+            # 获取传感器在基坐标系中的位姿
+            tcp_pose = robot_controller.get_ee_pose()
+            tcp_T = TransPose.getT_fromRotvec(tcp_pose)
+            sensor_T = tcp_T @ self.sensor_deltaT
+            sensor_R = sensor_T[:3, :3]  # 旋转矩阵
+
+            # 计算从传感器中心到被动端的向量（基坐标系下）
+            # 1. 工装首端（传感器中心）到工装末端的偏移量（工装坐标系下）
+            tool_start_to_end_local = np.array([0.05403, -0.05297, 0.7109]).reshape(3, 1)
+            # 转换到基坐标系
+            tool_start_to_end_base = sensor_R @ tool_start_to_end_local
+
+            # 2. 工装末端到被动端中心点的偏移量（工装坐标系下）
+            tool_end_to_passive_local = self.tool_tip_to_passive_offset.reshape(3, 1)
+            # 转换到基坐标系
+            tool_end_to_passive_base = sensor_R @ tool_end_to_passive_local
+
+            # 3. 从传感器中心到被动端的总向量（基坐标系下）
+            sensor_to_passive_vector = (tool_start_to_end_base + tool_end_to_passive_base).flatten()
+
+            # 将力从传感器中心转换到被动端位置（同一坐标系下，只转换参考点）
+            force_passive_end = TransPose.trans_force_reference_point(
+                force_sensor_center,
+                sensor_to_passive_vector
+            )
+
+            return force_passive_end.flatten()
+
+        except Exception as e:
+            print(f"力转换到被动端失败: {e}")
+            return force_sensor_center  # 返回原始力
+
     def set_virtual_force(self, values):
         # values 是长度 6 的可迭代对象，里面必须是数字（你自己保证）
         self.virtual_force = np.array(values, dtype=float).reshape(6)
 
-
     def get_virtual_force(self):
         return self.virtual_force
-
 
     def _force_update_loop(self):
         """力传感器数据更新循环 - 完全参考旧版本的 thread_job"""
@@ -199,7 +234,4 @@ class ForceController:
             except Exception as e:
                 print(f"力传感器数据更新失败: {e}")
                 time.sleep(0.01)
-
-
-
 

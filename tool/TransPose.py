@@ -108,6 +108,40 @@ class TransPose():
         f_base = self.trans_fromsensor_tobase(force_pose_T, force_cur_tcp)
         return f_base
 
+    @staticmethod
+    def trans_force_reference_point(force_old, r_vector):
+        """
+        在同一坐标系下，将力从一个参考点转换到另一个参考点
+
+        Args:
+            force_old: 旧参考点处的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz] (6×1 或 1×6)
+            r_vector: 从旧参考点指向新参考点的向量 [dx, dy, dz] (3×1 或 1×3)
+
+        Returns:
+            force_new: 新参考点处的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz] (6×1)
+        """
+        force_old = np.array(force_old).reshape(6, 1)
+        r_vector = np.array(r_vector).reshape(3, 1)
+
+        # 提取力和力矩
+        F_old = force_old[:3]  # [Fx, Fy, Fz]
+        T_old = force_old[3:]  # [Tx, Ty, Tz]
+
+        # 力向量不变
+        F_new = F_old.copy()
+
+        # 力矩转换：T_new = T_old - r × F_old
+        # 计算叉积 r × F
+        r_cross_F = np.cross(r_vector.flatten(), F_old.flatten()).reshape(3, 1)
+
+        # 新参考点的力矩
+        T_new = T_old - r_cross_F
+
+        # 组合新的力/力矩
+        force_new = np.vstack([F_new, T_new])
+
+        return force_new
+
 
 if __name__ == "__main__":
     target_tip = np.array(
