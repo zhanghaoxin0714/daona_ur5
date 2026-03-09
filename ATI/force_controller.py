@@ -16,7 +16,18 @@ class ForceController:
         self.sensor_deltaT = TransPose.getT_fromRotvec(self.delta_ur_sensor)#定义传感器位置
         # 工装末端到被动端中心点的偏移量（基坐标系下）
         # 格式：[dx, dy, dz] 单位：米
+        R_ws = np.array([
+            [-0.9944, -0.1041, 0.01721],
+            [-0.1049, 0.9932, -0.05024],
+            [-0.01186, -0.05177, -0.9986]
+        ])  # 工件坐标系相对于传感器坐标系的旋转矩阵
+        t_ws = np.array([0.05403, -0.05297, 0.7109])  # 平移向量（米）
+        # 构建4×4齐次变换矩阵
+        T_workpiece_to_sensor = np.eye(4)
+        T_workpiece_to_sensor[:3, :3] = R_ws  # 旋转部分
+        T_workpiece_to_sensor[:3, 3] = t_ws  # 平移部分
         # 暂时设为 a，后续需要根据实际测量值更新
+        self.T_workpiece_to_sensor = T_workpiece_to_sensor  # 保存为类属性
         self.tool_tip_to_passive_offset = np.array([0, 0, -0.2])  # 示例：假设被动端在工装末端下方20cm
 
         self.netft = None#六维力连接实例
@@ -39,12 +50,12 @@ class ForceController:
         """内部连接方法"""
         try:
             self.netft = rpi_ati_net_ft.NET_FT(force_host)
-            self.netft.set_tare_from_ft()
+            self.netft.set_tare_from_ft()#去皮
             self.netft.start_streaming()
 
             # 测试连接
             test_data = self.netft.try_read_ft_streaming(0.01)
-            if test_data is not None:
+            if test_data[0]:  # 检查第一个元素（成功标志）
                 self.is_connected = True
                 return True
             else:
@@ -107,8 +118,8 @@ class ForceController:
             raise ValueError("force_cur_tcp 必须是 numpy 数组")
         if len(force_cur_tcp) != 6:
             raise ValueError("force_cur_tcp 必须为 6X1 向量")
-        force_cur_tcp[:3] = np.clip(force_cur_tcp[:3], -50, 50)
-        force_cur_tcp[3:] = np.clip(force_cur_tcp[3:], -5, 5)
+        # force_cur_tcp[:3] = np.clip(force_cur_tcp[:3], -50, 50)
+        # force_cur_tcp[3:] = np.clip(force_cur_tcp[3:], -5, 5)
         # print(force_cur_tcp);
 
         # 根据用途决定是否小值清零
@@ -135,7 +146,15 @@ class ForceController:
             xvni = self.xvni
         # 根据机械臂连接状态决定是否进行坐标变换
         if robot_controller is not None:
-            fg = self._transform_to_base_coordinate(force_cur_tcp, robot_controller)
+            # # # 方法1：直接转换到基坐标系（旧方法，传感器中心）
+            # fg = self._transform_to_base_coordinate(force_cur_tcp, robot_controller)
+
+            # # # 方法2：通过工件坐标系转换（新方法，工件中心）
+            force_workpiece = self.transform_sensor_to_workpiece(force_cur_tcp)
+            force_base = self.transform_workpiece_to_base(force_workpiece, robot_controller)
+            fg = force_base  # 使用工件中心的力
+
+
             # 第二步：传感器中心基坐标系 → 被动端基坐标系（新增）
             # fg_passive = self.transform_force_to_passive_end(fg, robot_controller)
             # print(fg)
@@ -156,8 +175,9 @@ class ForceController:
         try:
             # 获取机械臂位姿
             tcp_pose = robot_controller.get_ee_pose()
-            tcp_T = TransPose.getT_fromRotvec(tcp_pose)
-            # 计算传感器变换矩阵
+            #从基坐标系到工具坐标系的变换矩阵
+            tcp_T = TransPose.getT_fromRotvec(tcp_pose)#getT 将位姿向量转换为4*4的齐次变换矩阵
+            # 从基坐标系到传感器坐标系的变换矩阵
             sensor_T = tcp_T @ self.sensor_deltaT
             # 进行坐标变换
             f_base = TransPose.trans_fromsensor_tobase(sensor_T, force_data)
@@ -167,6 +187,65 @@ class ForceController:
         except Exception as e:
             print(f"坐标变换失败: {e}")
             return force_data  # 返回原始数据
+
+    def transform_sensor_to_workpiece(self, force_sensor):
+        """
+        将力从传感器坐标系转换到工件坐标系
+
+        Args:
+            force_sensor: 传感器坐标系中的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz] (6×1 或 1×6)
+
+        Returns:
+            force_workpiece: 工件坐标系中的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz] (6×1)
+        """
+        try:
+            # 使用 trans_fromsensor_tobase 方法转换
+            # 注意：虽然方法名是"tobase"，但实际是通用的力坐标转换方法
+            # 可以用于任意两个坐标系之间的转换
+            force_workpiece = TransPose.trans_fromsensor_tobase(
+                self.T_workpiece_to_sensor,  # 工件相对于传感器的变换矩阵
+                force_sensor  # 传感器坐标系中的力
+            )
+            return force_workpiece
+        except Exception as e:
+            print(f"传感器到工件坐标系转换失败: {e}")
+            return force_sensor  # 返回原始数据
+
+    # 在 transform_sensor_to_workpiece 方法之后添加：
+
+    def transform_workpiece_to_base(self, force_workpiece, robot_controller):
+        """
+        将力从工件坐标系转换到基坐标系
+
+        Args:
+            force_workpiece: 工件坐标系中的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz] (6×1 或 1×6)
+            robot_controller: 机械臂控制器，用于获取传感器位姿
+
+        Returns:
+            force_base: 基坐标系中的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz] (6×1)
+        """
+        try:
+            # 获取机械臂TCP位姿
+            tcp_pose = robot_controller.get_ee_pose()
+            tcp_T = TransPose.getT_fromRotvec(tcp_pose)
+
+            # 传感器在基坐标系中的位姿
+            sensor_T_base = tcp_T @ self.sensor_deltaT
+
+            # 计算工件在基坐标系中的位姿
+            workpiece_T_base = sensor_T_base @ self.T_workpiece_to_sensor
+
+            # 转换到基坐标系
+            force_base = TransPose.trans_fromsensor_tobase(
+                workpiece_T_base,
+                force_workpiece
+            )
+
+            return force_base
+
+        except Exception as e:
+            print(f"工件到基坐标系转换失败: {e}")
+            return force_workpiece  # 返回原始数据
 
     def transform_force_to_passive_end(self, force_sensor_center, robot_controller):
         """
@@ -211,6 +290,50 @@ class ForceController:
         except Exception as e:
             print(f"力转换到被动端失败: {e}")
             return force_sensor_center  # 返回原始力
+
+    def transform_base_sensor_to_base_workpiece(self, force_base_sensor, robot_controller):
+        """
+        将基坐标系下传感器中心的力转换到基坐标系下工件中心的力
+
+        Args:
+            force_base_sensor: 基坐标系下传感器中心的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz]
+            robot_controller: 机械臂控制器，用于获取传感器位姿
+
+        Returns:
+            force_base_workpiece: 基坐标系下工件中心的力/力矩 [Fx, Fy, Fz, Tx, Ty, Tz]
+        """
+        try:
+            # 获取传感器在基坐标系中的位姿
+            tcp_pose = robot_controller.get_ee_pose()
+            tcp_T = TransPose.getT_fromRotvec(tcp_pose)#传感器位姿矩阵
+            sensor_T_base = tcp_T @ self.sensor_deltaT
+
+            # 传感器中心在基坐标系中的位置
+            sensor_pos_base = sensor_T_base[:3, 3]
+
+            # 工件在传感器坐标系中的位置
+            workpiece_pos_sensor = self.T_workpiece_to_sensor[:3, 3]
+
+            # 传感器坐标系到基坐标系的旋转矩阵
+            R_sensor_to_base = sensor_T_base[:3, :3]
+
+            # 将工件位置转换到基坐标系
+            workpiece_pos_base = sensor_pos_base + R_sensor_to_base @ workpiece_pos_sensor
+
+            # 计算从传感器中心到工件中心的向量（在基坐标系中）
+            r_sensor_to_workpiece = workpiece_pos_base - sensor_pos_base
+
+            # 转换参考点（同一坐标系下）
+            force_base_workpiece = TransPose.trans_force_reference_point(
+                force_base_sensor,
+                r_sensor_to_workpiece
+            )
+
+            return force_base_workpiece.flatten()
+
+        except Exception as e:
+            print(f"传感器中心到工件中心转换失败: {e}")
+            return force_base_sensor  # 返回原始数据
 
     def set_virtual_force(self, values):
         # values 是长度 6 的可迭代对象，里面必须是数字（你自己保证）

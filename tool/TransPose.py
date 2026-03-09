@@ -31,13 +31,13 @@ class TransPose():
 
         R_ = np.array(R2)
         t_ = np.array(t)
-        T_1 = np.append(R_, t_, axis=1)
+        T_1 = np.append(R_, t_, axis=1)#axis=1 水平拼接
         # print(T_1)
 
-        zero = np.mat([0, 0, 0, 1])
+        zero = np.mat([0, 0, 0, 1])#np.mat构建矩阵
         T_2 = np.array(zero)
 
-        T = np.append(T_1, T_2, axis=0)
+        T = np.append(T_1, T_2, axis=0)#垂直拼接
         T = np.mat(T)
 
         return T
@@ -57,19 +57,19 @@ class TransPose():
         '''
         将六维力从传感器坐标转换到基坐标系下表示
         '''
-        f_sensor = np.mat(f_sensor.reshape(-1, 1))
+        f_sensor = np.mat(f_sensor.reshape(-1, 1))#将数组转换为列向量 6*1
         x = T[0, 3]
         y = T[1, 3]
         z = T[2, 3]
 
-        Rba = np.mat(T[:3, :3])
+        Rba = np.mat(T[:3, :3])#提取旋转矩阵
         # print(Rba)
         # aP_borg = np.mat([
         #     [0, -x, y],
         #     [x, 0, -x],
         #     [-y, x, 0]
         # ])
-        aP_borg = np.mat([
+        aP_borg = np.mat([#构建反对称矩阵 用于计算叉积
             [0, -z, y],
             [z, 0, -x],
             [-y, x, 0]
@@ -79,8 +79,9 @@ class TransPose():
         #     [0,y,0],
         #     [0,0,z]
         # ])
-        a1 = np.hstack((Rba, np.zeros((3, 3))))
-        a2 = np.hstack((aP_borg @ Rba, Rba))
+        a1 = np.hstack((Rba, np.zeros((3, 3))))#构建6*6变换矩阵的上半部分 np.hstack 水平拼接
+        #a2 = np.hstack((aP_borg @ Rba, Rba))##构建6*6变换矩阵的下半部分 前面是反对称矩阵乘以旋转变换矩阵
+        a2 = np.hstack((np.zeros((3, 3)), Rba)) #作用点转换至六维力中心
         # a1 = np.hstack((Rba,-Rba @ aP_borg ))
         # a2 = np.hstack((np.zeros((3,3)),Rba))
         # a1 = np.hstack((Rba,aP_borg @ Rba ))

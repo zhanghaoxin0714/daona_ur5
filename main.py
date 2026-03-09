@@ -73,6 +73,7 @@ class MyUi(Ui_Widget):
         # ==================== 视觉伺服相关初始化 ====================
         self.camera_handler = None  # 相机处理器
         self.camera_preview_thread = None  # 相机预览线程
+        self.detection_enabled = False  # ArUco检测开关
 
     def initUi(self):
         print("初始化UI...")
@@ -99,6 +100,7 @@ class MyUi(Ui_Widget):
         # 视觉伺服相关按钮绑定
         self.pushButton_16.clicked.connect(self.startCameraBtnClicked)  # 启动摄像头按钮
         self.pushButton_11.clicked.connect(self.closeCameraBtnClicked)  # 关闭摄像头按钮
+        self.pushButton_6.clicked.connect(self.targetObservationBtnClicked)  # 目标观测按钮
         self.detail.init_ft_chart()  # 初始化力传感器图表
         self.addLogs("【INFO】初始化UI成功") #记录日志
 
@@ -349,8 +351,14 @@ class MyUi(Ui_Widget):
         # 设置力传感器控制器到机械臂控制器
         if self.force_controller is not None:
             self.controller.set_force_controller(self.force_controller)
-
         try:
+            # if self.controlThread == None:
+            #     self.controlThread = AdControlThread(self.controller, self.M, self.B, self.K)
+            #     self.controlThread.start()
+            #     self.addLogs("【INFO】导纳控制已启动")
+            # else:
+            #     self.controlThread.resume()
+            #     self.addLogs("【INFO】导纳控制已启动/恢复")
             self.controlThread = AdControlThread(self.controller, self.M, self.B, self.K)
             self.controlThread.start()
             self.addLogs("【INFO】导纳控制已启动")
@@ -362,14 +370,14 @@ class MyUi(Ui_Widget):
         try:
             # 停止导纳控制线程
             if self.controlThread is not None:
-                self.controlThread.pause()
+                self.controlThread.stop()
+                self.controlThread.wait()
+                self.controlThread = None
+                # self.controller.stop_robot()
+                # self.controlThread.pause()
+                # if self.controller is not None:
+                #     self.controller.stop_robot()
                 self.addLogs("【INFO】导纳控制已停止")
-
-            # # 停止机器人运动
-            # if self.controller is not None:
-            #     self.controller.stop_robot()
-            #     self.addLogs("【INFO】机器人已停止")
-
         except Exception as e:
             self.addLogs(f'【ERROR】停止导纳控制失败: {e}')
 
@@ -513,7 +521,14 @@ class MyUi(Ui_Widget):
         【作用】更新界面中的绘图时间
         """
         self.refreshTime = refreshTime#保存当前时间戳
-        self.controlTime = refreshTime - self.Robot_StartTime#当前时间-程序启动时间戳 记录运行时间
+        # 检查 Robot_StartTime 是否存在，如果不存在则使用 Force_StartTime
+        if hasattr(self, 'Robot_StartTime'):
+            self.controlTime = refreshTime - self.Robot_StartTime
+        elif hasattr(self, 'Force_StartTime'):
+            self.controlTime = refreshTime - self.Force_StartTime
+        else:
+            # 如果两者都不存在，使用当前时间作为基准
+            self.controlTime = 0.0#当前时间-程序启动时间戳 记录运行时间
         # print('TimeStamp:', self.controlTime)
 
     def saveForceData(self):
@@ -780,12 +795,16 @@ class MyUi(Ui_Widget):
 
             # 3. 创建并启动预览线程
             if self.camera_preview_thread is None or not self.camera_preview_thread.isRunning():
-                self.camera_preview_thread = CameraPreviewThread(self.camera_handler)
+                self.camera_preview_thread = CameraPreviewThread(
+                    self.camera_handler,
+                    enable_detection=self.detection_enabled  # 传入检测开关
+                )
 
                 # 连接信号：当线程发送图像时，更新UI显示
                 self.camera_preview_thread.signal_image.connect(self.updateCameraDisplay)
                 self.camera_preview_thread.signal_error.connect(lambda msg: self.addLogs(f'【ERROR】{msg}'))
-
+                # 连接检测结果信号
+                self.camera_preview_thread.signal_detection_result.connect(self.onDetectionResult)
                 # 启动线程
                 self.camera_preview_thread.start()
                 self.addLogs('【INFO】摄像头预览已启动')
@@ -878,6 +897,50 @@ class MyUi(Ui_Widget):
 
         except Exception as e:
             pass
+
+    def targetObservationBtnClicked(self):
+        """目标观测按钮点击事件 - 开启/关闭 ArUco 检测"""
+        try:
+            # 切换检测开关
+            self.detection_enabled = not self.detection_enabled
+
+            if self.detection_enabled:
+                self.addLogs('【INFO】ArUco 目标检测已开启')
+            else:
+                self.addLogs('【INFO】ArUco 目标检测已关闭')
+
+            # 如果预览线程正在运行，更新检测状态
+            if self.camera_preview_thread is not None and self.camera_preview_thread.isRunning():
+                self.camera_preview_thread.set_detection_enabled(self.detection_enabled)
+
+        except Exception as e:
+            self.addLogs(f'【ERROR】切换目标检测失败: {str(e)}')
+
+    def onDetectionResult(self, corners, ids, center_point, tvec):
+        """
+        检测结果回调
+
+        参数:
+            corners: 角点坐标
+            ids: 标记ID
+            center_point: 中心点坐标
+            tvec: 平移向量（位姿）
+        """
+        try:
+            if center_point is not None:
+                # 可以在UI上显示检测信息
+                # 例如：在日志中显示
+                info = f"检测到ArUco标记 - 中心点: ({center_point[0]:.1f}, {center_point[1]:.1f})"
+                if tvec is not None and len(tvec) > 0:
+                    distance = np.linalg.norm(tvec[0])
+                    info += f" - 距离: {distance * 1000:.1f}mm"
+                # self.addLogs(info)  # 可选：在日志中显示（可能会很频繁）
+
+                # 可以在UI的输入框中显示位姿信息（如果有的话）
+                # 例如：self.lineEdit_xxx.setText(f"{tvec[0][0]:.3f}")
+
+        except Exception as e:
+            pass  # 静默处理错误
 
 
 if __name__ == '__main__':#Python的标准入口点检查

@@ -11,6 +11,7 @@ class AdControlThread(QtCore.QThread):
     def __init__(self, controller=None, M=None, B=None, K=None):
         super().__init__()  # 调用Qt基本功能
         self._isPaused = False  # 设置暂停标志 不暂停
+        self._stop = False #停止标志位
         #self._isRunning = True
         self.condition = QtCore.QWaitCondition()  # 创建线程同步条件，用于暂停/恢复机制
         self.mutex = QtCore.QMutex()  # 互斥锁 保证线程安全
@@ -22,9 +23,13 @@ class AdControlThread(QtCore.QThread):
 
     def pause(self):
         self._isPaused = True
-    # def stop(self):  # 改为stop方法
-    #     self._isRunning = False
-    #     self.condition.wakeAll()
+
+    def stop(self):
+        self.mutex.lock()
+        self._stop = True
+        self._isPaused = False
+        self.condition.wakeAll()
+        self.mutex.unlock()
 
     def resume(self):
         self._isPaused = False
@@ -34,10 +39,13 @@ class AdControlThread(QtCore.QThread):
         self.wait()
 
     def run(self):
-        while True:
+        while not self._stop:
             self.mutex.lock()
             if self._isPaused:
                 self.condition.wait(self.mutex)
+                if self._stop:
+                    self.mutex.unlock()
+                    break
                 self.mutex.unlock()
                 continue
 

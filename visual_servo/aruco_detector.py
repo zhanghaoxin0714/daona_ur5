@@ -6,14 +6,20 @@ import cv2.aruco as aruco
 
 class ArUcoDetector:
     def __init__(self):
-        self.aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
-        self.parameters = aruco.DetectorParameters_create()
+        # 兼容新旧版本的 OpenCV
+        try:
+            # 新版本 OpenCV (>= 4.7.0)
+            self.aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_ARUCO_ORIGINAL)
+            self.parameters = cv2.aruco.DetectorParameters()
+        except AttributeError:
+            # 旧版本 OpenCV (< 4.7.0)
+            self.aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_ARUCO_ORIGINAL)
+            self.parameters = cv2.aruco.DetectorParameters_create()
 
     def detect_markers(self, img_color, camera_matrix, dist_coeffs):
         # 从main.py的ArUco检测代码复制过来
         corners, ids, rejected_img_points = aruco.detectMarkers(
-            img_color, self.aruco_dict, self.parameters,
-            cameraMatrix=camera_matrix, distCoeff=dist_coeffs
+            img_color, self.aruco_dict, parameters=self.parameters
         )
 
         if corners is not None and len(corners) > 0:

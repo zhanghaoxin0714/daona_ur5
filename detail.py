@@ -27,21 +27,21 @@ class Detail:
         self.ui.lineEdit_CforceIP.setText('192.168.111.20')  # 力传感器IP
 
         # ==================== UI默认值设置 - 目标位姿 ====================
-        self.ui.lineEdit_CtargetX.setText('-0.340')  # TargetX
-        self.ui.lineEdit_CtargetY.setText('-0.114')  # TargetY
-        self.ui.lineEdit_CtargetZ.setText('0.447')  # TargetZ
-        self.ui.lineEdit_CtargetRr.setText('2.687')  # TargetRr
-        self.ui.lineEdit_CtargetRp.setText('1.395')  # TargetRp
-        self.ui.lineEdit_CtargetRy.setText('0.061')  # TargetRy
+        self.ui.lineEdit_CtargetX.setText('-0.336')  # TargetX
+        self.ui.lineEdit_CtargetY.setText('-0.514')  # TargetY
+        self.ui.lineEdit_CtargetZ.setText('-0.117')  # TargetZ
+        self.ui.lineEdit_CtargetRr.setText('1.712')  # TargetRr
+        self.ui.lineEdit_CtargetRp.setText('2.626')  # TargetRp
+        self.ui.lineEdit_CtargetRy.setText('0.07')  # TargetRy
 
         # ==================== UI默认值设置 - 导纳参数M矩阵 ====================
         # M矩阵参数 (0.2, 0.2, 0.05, 0.008, 0.008, 0.01)
         self.ui.lineEdit_adMx.setText('0.200')
         self.ui.lineEdit_adMy.setText('0.200')
-        self.ui.lineEdit_adMz.setText('0.020')
-        self.ui.lineEdit_adMRr.setText('0.008')
-        self.ui.lineEdit_adMRp.setText('0.008')
-        self.ui.lineEdit_adMRy.setText('0.010')
+        self.ui.lineEdit_adMz.setText('0.200')
+        self.ui.lineEdit_adMRr.setText('0.05')
+        self.ui.lineEdit_adMRp.setText('0.05')
+        self.ui.lineEdit_adMRy.setText('0.05')
 
         # ==================== UI默认值设置 - 导纳参数B矩阵 ====================
         # B矩阵参数 (20, 20, 20, 20, 20, 20)
@@ -56,7 +56,7 @@ class Detail:
         # K矩阵参数 (50, 50, 100, 30, 30, 30)
         self.ui.lineEdit_adKx.setText('40.000')
         self.ui.lineEdit_adKy.setText('40.000')
-        self.ui.lineEdit_adKz.setText('80.000')
+        self.ui.lineEdit_adKz.setText('40.000')
         self.ui.lineEdit_adKRr.setText('30.000')
         self.ui.lineEdit_adKRp.setText('30.000')
         self.ui.lineEdit_adKRy.setText('30.000')

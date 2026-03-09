@@ -51,6 +51,11 @@ class URControlAPI(object):
         pose = pose.tolist()
         self.rtde_c.servoL(pose, speed, acc, 0.01, 0.05, 300)
 
+        # time：伺服命令保持的时间（阻塞时间），单位秒。机器人会在这段时间里尽量向目标位姿靠拢，值越大动作越慢、越平滑。
+        # lookahead_time：0.03–0.2 s，用于平滑轨迹；值越大越平滑、越“柔”。
+        # gain：100–2000
+        # 的比例增益，越大响应越快、越刚性。
+
     def speedJ(self, joint_speed, acc=0.25, control_period=0.02):
         joint_speed = joint_speed.tolist()
         self.rtde_c.speedJ(joint_speed, acc, control_period)

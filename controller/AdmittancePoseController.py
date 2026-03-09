@@ -131,7 +131,8 @@ class AdmittancePoseController:
         self.pose_cur_desire = pose_target
         #计算速度和加速度
         self.d_pose_cur = (
-                (self.pose_cur - self.pose_cur_desire) / self.dt).reshape(6, 1)
+                (self.pose_cur - self.pose_pre) / self.dt).reshape(6, 1)
+                #(self.pose_cur - self.pose_cur_desire) / self.dt).reshape(6, 1)
         self.dd_pose_cur = (
                 (self.d_pose_cur - self.d_pose_pre) / self.dt).reshape(6, 1)
         #计算误差
