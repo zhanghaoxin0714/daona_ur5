@@ -126,18 +126,18 @@ class ForceController:
         if not for_display:
 
             # 控制用：小值清零
-            if np.abs(force_cur_tcp[0]) < 1:
+            if np.abs(force_cur_tcp[0]) < 5:
                 force_cur_tcp[0] = 0
-            if np.abs(force_cur_tcp[1]) < 1:
+            if np.abs(force_cur_tcp[1]) < 5:
                 force_cur_tcp[1] = 0
             if np.abs(force_cur_tcp[2]) < 1:
                 force_cur_tcp[2] = 0
 
-            if np.abs(force_cur_tcp[3]) < 0.3:
+            if np.abs(force_cur_tcp[3]) < 1:
                 force_cur_tcp[3] = 0
-            if np.abs(force_cur_tcp[4]) < 0.3:
+            if np.abs(force_cur_tcp[4]) < 1:
                 force_cur_tcp[4] = 0
-            if np.abs(force_cur_tcp[5]) < 0.3:
+            if np.abs(force_cur_tcp[5]) < 1:
                 force_cur_tcp[5] = 0
             # force_cur_tcp[:3][np.abs(force_cur_tcp[:3]) < 3] = 0
             # force_cur_tcp[3:][np.abs(force_cur_tcp[3:]) < 0.3] = 0

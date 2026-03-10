@@ -104,9 +104,10 @@ class AdmittancePoseController:
 
         return self.de_cur
 
-    def cal_increment(self, M, B, K, ft, pose, pose_target):
+    def cal_increment(self, M, B, K, ft, pose, pose_target, admittance_mask=None):
         """
         计算位置、姿态导纳控制增量
+
 
         :param pose: current pose
         :param ft: current force/torque
@@ -115,6 +116,11 @@ class AdmittancePoseController:
         :param B: virtual damping
         :param K: virtual stiffness
         """
+        if admittance_mask is None:
+            admittance_mask = np.ones((6, 1))
+        else:
+            admittance_mask = np.array(admittance_mask).reshape(6, 1)
+
         self.M = M
         self.B = B
         self.K = K
@@ -152,6 +158,8 @@ class AdmittancePoseController:
         self.e_cur = (
                 np.array((self.dt * (self.de_cur + self.de_pre) / 2)) + self.e_pre
         )#积分得到位置
+
+        self.e_cur = self.e_cur * admittance_mask  # 权重为0的轴，修正量直接清零
 
         # 更新内部变量
         self.pose_pre = self.pose_cur
