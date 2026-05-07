@@ -14,7 +14,7 @@ class TrajectoryControlThread(QtCore.QThread):
     signal_finished = QtCore.pyqtSignal(bool, str)  # 发送完成信号 (是否成功, 消息)
     signal_point_reached = QtCore.pyqtSignal(int, object)  # 发送到达点信号 (点序号, 位姿)
 
-    def __init__(self, controller=None, trajectory=None, speed=0.05, acc=0.02, dt=0.1,test_mode=False):
+    def __init__(self, controller=None, trajectory=None, speed=0.01, acc=0.01, dt=0.1,test_mode=False):
         super().__init__()
         self._isPaused = False
         self._isRunning = True

@@ -6,6 +6,7 @@
 """
 
 import numpy as np
+from PyQt5.QtCore import QMargins, Qt
 
 
 class Detail:
@@ -36,9 +37,9 @@ class Detail:
 
         # ==================== UI默认值设置 - 导纳参数M矩阵 ====================
         # M矩阵参数 (0.2, 0.2, 0.05, 0.008, 0.008, 0.01)
-        self.ui.lineEdit_adMx.setText('0.200')
-        self.ui.lineEdit_adMy.setText('0.200')
-        self.ui.lineEdit_adMz.setText('0.300')
+        self.ui.lineEdit_adMx.setText('0.400')
+        self.ui.lineEdit_adMy.setText('0.400')
+        self.ui.lineEdit_adMz.setText('0.50')
         self.ui.lineEdit_adMRr.setText('0.05')
         self.ui.lineEdit_adMRp.setText('0.05')
         self.ui.lineEdit_adMRy.setText('0.05')
@@ -47,7 +48,7 @@ class Detail:
         # B矩阵参数 (20, 20, 20, 20, 20, 20)
         self.ui.lineEdit_adBx.setText('100.000')
         self.ui.lineEdit_adBy.setText('100.000')
-        self.ui.lineEdit_adBz.setText('40.000')
+        self.ui.lineEdit_adBz.setText('80.000')
         self.ui.lineEdit_adBRr.setText('100.000')
         self.ui.lineEdit_adBRp.setText('100.000')
         self.ui.lineEdit_adBRy.setText('100.000')
@@ -64,7 +65,7 @@ class Detail:
         # ==================== UI默认值设置 - 虚拟力参数 ====================
         self.ui.BHxnfx.setText('0')
         self.ui.BHxnfy.setText('0')
-        self.ui.BHxnfz.setText('-6')
+        self.ui.BHxnfz.setText('-50')
         self.ui.BHxntx.setText('0')
         self.ui.BHxnty.setText('0')
         self.ui.BHxntz.setText('0')
@@ -126,6 +127,17 @@ class Detail:
         self.ui.torqueChart.addSeries(self.ui.torqueYSeries)
         self.ui.torqueChart.addSeries(self.ui.torqueZSeries)
 
+        # self.ui.forceChart.legend().hide()
+        # self.ui.torqueChart.legend().hide()
+
+        self.ui.forceChart.legend().setVisible(True)
+        self.ui.forceChart.legend().setAlignment(Qt.AlignRight)
+        self.ui.torqueChart.legend().setVisible(True)
+        self.ui.torqueChart.legend().setAlignment(Qt.AlignRight)
+        # 设置坐标轴
+        self.ui.TimeAxis1 = QValueAxis()
+
+
         # 设置坐标轴
         self.ui.TimeAxis1 = QValueAxis()
         self.ui.TimeAxis2 = QValueAxis()
@@ -133,8 +145,8 @@ class Detail:
         self.ui.TorqueAxis = QValueAxis()
         self.ui.TimeAxis1.setRange(0, 30)
         self.ui.TimeAxis2.setRange(0, 30)
-        self.ui.ForceAxis.setRange(-50, 50)
-        self.ui.TorqueAxis.setRange(-5, 5)
+        self.ui.ForceAxis.setRange(-60, 60)
+        self.ui.TorqueAxis.setRange(-7, 7)
 
         # 设置坐标轴标签格式和字体
         small_font = QFont()

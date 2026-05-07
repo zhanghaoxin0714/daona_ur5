@@ -16,8 +16,10 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtCore
 from PyQt5.QtChart import *
 from PyQt5.QtCore import QMargins
+from nltk import add_logs
+
 # ==================== 项目内部UI相关 ====================
-from Qt.widget import Ui_Widget
+from Qt.widget2 import Ui_Widget
 # ==================== 项目内部模块导入 - 机械臂相关 ====================
 from robot.robot_controller import RobotController
 from robot.robot_data_thread import RobotDataThread
@@ -35,6 +37,9 @@ from detail import Detail
 # ==================== 项目内部模块导入 - 视觉伺服相关 ====================
 from visual_servo.camera_handler import CameraHandler
 from visual_servo.camera_preview_thread import CameraPreviewThread
+# ==================== 项目内部模块导入 - ORU项目 ====================
+import oru_actions
+
 
 class MyUi(Ui_Widget):
     def __init__(self):
@@ -101,8 +106,26 @@ class MyUi(Ui_Widget):
         self.pushButton_16.clicked.connect(self.startCameraBtnClicked)  # 启动摄像头按钮
         self.pushButton_11.clicked.connect(self.closeCameraBtnClicked)  # 关闭摄像头按钮
         self.pushButton_6.clicked.connect(self.targetObservationBtnClicked)  # 目标观测按钮
+        #oru相关
+        self.pushButton_5.clicked.connect(self.on_prepare_passive_clicked) #移动至被动端上方
+        self.pushButton_7.clicked.connect(self.on_grab_passive_clicked)  # 抓取被动端
+        self.pushButton_10.clicked.connect(self.on_passive_insert_clicked)   # 被动端插入
+        self.pushButton_22.clicked.connect(self.A_yelu_clicked)  # 被动端插入
+        self.pushButton_24.clicked.connect(self.yelu_dianlu_clicked) #液体移动至电路
+        self.pushButton_25.clicked.connect(self.bei_pian_clicked)  # 被动端偏执
+        self.pushButton_26.clicked.connect(self.bei_hui_clicked)  # 被动端回调
+        self.pushButton_29.clicked.connect(self.luosi_clicked)  # 被动端回调
+        self.pushButton.clicked.connect(self.luosiA_clicked)  # 移动到螺丝A
+        self.pushButton_2.clicked.connect(self.open_shijiao)  # 开启示教模式
+        self.pushButton_4.clicked.connect(self.close_shijiao)  # 关闭示教模式
+
+
+
+
+
         self.detail.init_ft_chart()  # 初始化力传感器图表
         self.addLogs("【INFO】初始化UI成功") #记录日志
+
 
 
     def ConnectRobotBtnClicked(self):
@@ -170,6 +193,9 @@ class MyUi(Ui_Widget):
             # 创建位姿数据记录文件
             self.posePath = f"res/pose/{str(datetime.now())[:-7].replace(':', '-')}.txt"
             self.poseRecord = open(self.posePath, "a+")#创建并打开数据文件
+
+            self.jointPath = f"res/joint/{str(datetime.now())[:-7].replace(':', '-')}.txt"
+            self.jointRecord = open(self.jointPath, "a+")
             # 开启机械臂数据刷新线程
             self.robotDataThread = RobotDataThread(self.controller)#创建机械臂数据获取线程 传入机械臂控制器
             self.robotDataThread._signal_pose.connect(self.ShowTargetEEPoseCallback)#将线程的位姿信号连接到ui更新函数
@@ -281,7 +307,8 @@ class MyUi(Ui_Widget):
 
                 # 停止机器人运动
                 if self.controller is not None:
-                    self.controller.stop_robot()
+                    self.controller.rtde_c.speedStop()
+                    # 或封装一个只停速度的接口，例如 stop_speed_motion()
 
                 self.addLogs('【INFO】速度控制已停止')
             else:
@@ -365,19 +392,43 @@ class MyUi(Ui_Widget):
         except Exception as e:
             self.addLogs(f'【ERROR】控制线程启动失败: {e}')
 
+    # def stopAdmControlButtonClicked(self):
+    #     """停止导纳控制"""
+    #     try:
+    #         # 停止导纳控制线程
+    #         if self.controlThread is not None:
+    #             self.controlThread.stop()
+    #             self.controlThread.wait()
+    #             self.controlThread = None
+    #             self.controller.rtde_c.servoStop()
+    #             self.controller.rtde_c.speedStop()
+    #             # self.controller.stop_robot()
+    #             # self.controlThread.pause()
+    #             # if self.controller is not None:
+    #             #     self.controller.stop_robot()
+    #             self.addLogs("【INFO】导纳控制已停止")
+    #     except Exception as e:
+    #         self.addLogs(f'【ERROR】停止导纳控制失败: {e}')
+
     def stopAdmControlButtonClicked(self):
         """停止导纳控制"""
         try:
-            # 停止导纳控制线程
+            # 1）先停导纳线程
             if self.controlThread is not None:
                 self.controlThread.stop()
                 self.controlThread.wait()
                 self.controlThread = None
-                # self.controller.stop_robot()
-                # self.controlThread.pause()
-                # if self.controller is not None:
-                #     self.controller.stop_robot()
-                self.addLogs("【INFO】导纳控制已停止")
+
+            # 2）退出伺服/速度模式（关键）
+            if self.controller is not None:
+                self.controller.rtde_c.servoStop()
+                self.controller.rtde_c.speedStop()
+
+                # 可选：清空导纳对象，让状态更干净
+                self.controller.adcontrol = None
+                self.controller.pose_target_fixed = None
+
+            self.addLogs("【INFO】导纳控制已停止")
         except Exception as e:
             self.addLogs(f'【ERROR】停止导纳控制失败: {e}')
 
@@ -465,6 +516,8 @@ class MyUi(Ui_Widget):
 
     def ShowTargetJointCallback(self, q):
         """更新机械臂关节角显示"""
+        dataline = f"{q[0]}, {q[1]}, {q[2]}, {q[3]}, {q[4]}, {q[5]}\n"
+        self.jointRecord.write(dataline)
         # 更新捕获机械臂关节角显示（单位：度）
         # 更新捕获机械臂关节角显示（单位：度）
         self.lineEdit_CJoint1.setText(f"{np.rad2deg(q[0]):.2f}")  # 关节角1 弧度转为角度
@@ -941,6 +994,47 @@ class MyUi(Ui_Widget):
 
         except Exception as e:
             pass  # 静默处理错误
+
+        # ORU相关函数
+    def on_prepare_passive_clicked(self):
+        oru_actions.prepare_passive_side_grab(self.controller, self.addLogs)
+
+    def on_grab_passive_clicked(self):
+        """UI 按钮：抓取被动端（真正抓取位姿）"""
+        oru_actions.grab_passive_side(self.controller, self.addLogs)
+
+    def on_passive_insert_clicked(self):
+        """UI 按钮：被动端插入"""
+        oru_actions.passive_side_insert(self.controller, self.addLogs)
+    def A_yelu_clicked(self):
+        oru_actions.a_yelu(self.controller,self.addLogs)
+
+    def yelu_dianlu_clicked(self):
+        oru_actions.yelu_dianlu(self.controller,self.addLogs)
+
+    def bei_pian_clicked(self):
+        oru_actions.bei_pian(self.controller,self.addLogs)
+
+    def bei_hui_clicked(self):
+        oru_actions.bei_hui(self.controller, self.addLogs)
+
+    def luosi_clicked(self):
+        oru_actions.luosi(self.controller, self.addLogs)
+
+    def luosiA_clicked(self):
+        oru_actions.luosiA(self.controller, self.addLogs)
+
+    def open_shijiao(self):
+        self.controller.rtde_c.teachMode()
+        self.label_119.setStyleSheet(
+            "background-color: green; border-radius: 10px; min-height: 20px; max-height: 20px; min-width: 20px; max-width: 20px;")
+        self.addLogs("示教模式已开启")
+
+    def close_shijiao(self):
+        self.controller.rtde_c.endTeachMode()
+        self.label_119.setStyleSheet(
+            "background-color: red; border-radius: 10px; min-height: 20px; max-height: 20px; min-width: 20px; max-width: 20px;")
+        self.addLogs("示教模式已关闭")
 
 
 if __name__ == '__main__':#Python的标准入口点检查

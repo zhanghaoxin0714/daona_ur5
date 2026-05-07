@@ -4,6 +4,7 @@ import time
 import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import QMutexLocker
 
 
 class VelocityControlThread(QtCore.QThread):
@@ -34,9 +35,8 @@ class VelocityControlThread(QtCore.QThread):
         self.condition.wakeAll()
 
     def set_target_velocity(self, velocity):
-        """设置目标速度"""
-        with self.mutex:
-            self.target_velocity = np.array(velocity).reshape(6, 1)
+        locker = QMutexLocker(self.mutex)
+        self.target_velocity = np.array(velocity).reshape(6, 1)
 
     def __del__(self):
         self.wait()

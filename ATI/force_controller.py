@@ -147,12 +147,12 @@ class ForceController:
         # 根据机械臂连接状态决定是否进行坐标变换
         if robot_controller is not None:
             # # # 方法1：直接转换到基坐标系（旧方法，传感器中心）
-            # fg = self._transform_to_base_coordinate(force_cur_tcp, robot_controller)
+            fg = self._transform_to_base_coordinate(force_cur_tcp, robot_controller)
 
             # # # 方法2：通过工件坐标系转换（新方法，工件中心）
-            force_workpiece = self.transform_sensor_to_workpiece(force_cur_tcp)
-            force_base = self.transform_workpiece_to_base(force_workpiece, robot_controller)
-            fg = force_base  # 使用工件中心的力
+            # force_workpiece = self.transform_sensor_to_workpiece(force_cur_tcp)
+            # force_base = self.transform_workpiece_to_base(force_workpiece, robot_controller)
+            # fg = force_base  # 使用工件中心的力
 
 
             # 第二步：传感器中心基坐标系 → 被动端基坐标系（新增）
