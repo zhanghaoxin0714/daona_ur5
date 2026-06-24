@@ -51,7 +51,7 @@ class RobotController(URControlAPI):
 
         self.update_status()  #更新当前状态
         #计算导纳控制增量
-        mask = [0, 0, 1, 0, 0, 0]
+        mask = [1, 1, 1, 1, 1, 1]
         control_e = self.adcontrol.cal_increment(M=M, B=B, K=K, ft=self.f_base, pose=self.pose, pose_target=self.pose, admittance_mask=mask)#调用导纳控制算法 计算导纳控制增量
         self.control = copy.deepcopy(self.pose) #计算新的控制位置
         self.control = self.add_pose_increment(self.control, control_e)

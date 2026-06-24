@@ -159,7 +159,7 @@ class AdmittancePoseController:
                 np.array((self.dt * (self.de_cur + self.de_pre) / 2)) + self.e_pre
         )#积分得到位置
 
-        self.e_cur = self.e_cur * admittance_mask  # 权重为0的轴，修正量直接清零
+        self.e_cur = self.e_cur# * admittance_mask  # 权重为0的轴，修正量直接清零
 
         # 更新内部变量
         self.pose_pre = self.pose_cur

@@ -39,28 +39,28 @@ class Detail:
         # M矩阵参数 (0.2, 0.2, 0.05, 0.008, 0.008, 0.01)
         self.ui.lineEdit_adMx.setText('0.400')
         self.ui.lineEdit_adMy.setText('0.400')
-        self.ui.lineEdit_adMz.setText('0.50')
-        self.ui.lineEdit_adMRr.setText('0.05')
-        self.ui.lineEdit_adMRp.setText('0.05')
+        self.ui.lineEdit_adMz.setText('0.450')
+        self.ui.lineEdit_adMRr.setText('0.045')
+        self.ui.lineEdit_adMRp.setText('0.045')
         self.ui.lineEdit_adMRy.setText('0.05')
 
         # ==================== UI默认值设置 - 导纳参数B矩阵 ====================
         # B矩阵参数 (20, 20, 20, 20, 20, 20)
         self.ui.lineEdit_adBx.setText('100.000')
         self.ui.lineEdit_adBy.setText('100.000')
-        self.ui.lineEdit_adBz.setText('80.000')
+        self.ui.lineEdit_adBz.setText('100.000')
         self.ui.lineEdit_adBRr.setText('100.000')
         self.ui.lineEdit_adBRp.setText('100.000')
         self.ui.lineEdit_adBRy.setText('100.000')
 
         # ==================== UI默认值设置 - 导纳参数K矩阵 ====================
         # K矩阵参数 (50, 50, 100, 30, 30, 30)
-        self.ui.lineEdit_adKx.setText('500.000')
-        self.ui.lineEdit_adKy.setText('500.000')
-        self.ui.lineEdit_adKz.setText('50.000')
-        self.ui.lineEdit_adKRr.setText('500.000')
-        self.ui.lineEdit_adKRp.setText('500.000')
-        self.ui.lineEdit_adKRy.setText('500.000')
+        self.ui.lineEdit_adKx.setText('100.000')
+        self.ui.lineEdit_adKy.setText('100.000')
+        self.ui.lineEdit_adKz.setText('100.000')
+        self.ui.lineEdit_adKRr.setText('100.000')
+        self.ui.lineEdit_adKRp.setText('100.000')
+        self.ui.lineEdit_adKRy.setText('100.000')
 
         # ==================== UI默认值设置 - 虚拟力参数 ====================
         self.ui.BHxnfx.setText('0')

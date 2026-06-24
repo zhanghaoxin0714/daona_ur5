@@ -126,11 +126,11 @@ class ForceController:
         if not for_display:
 
             # 控制用：小值清零
-            if np.abs(force_cur_tcp[0]) < 5:
+            if np.abs(force_cur_tcp[0]) < 3:
                 force_cur_tcp[0] = 0
-            if np.abs(force_cur_tcp[1]) < 5:
+            if np.abs(force_cur_tcp[1]) < 3:
                 force_cur_tcp[1] = 0
-            if np.abs(force_cur_tcp[2]) < 1:
+            if np.abs(force_cur_tcp[2]) < 3:
                 force_cur_tcp[2] = 0
 
             if np.abs(force_cur_tcp[3]) < 1:
@@ -156,7 +156,7 @@ class ForceController:
 
 
             # 第二步：传感器中心基坐标系 → 被动端基坐标系（新增）
-            # fg_passive = self.transform_force_to_passive_end(fg, robot_controller)
+            #fg = self.transform_force_to_passive_end(fg, robot_controller)
             # print(fg)
             # print(self.virtual_force)
             if xvni:

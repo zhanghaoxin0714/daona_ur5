@@ -240,8 +240,16 @@ class MyUi(Ui_Widget):
         targetPose = np.array([TargetX, TargetY, TargetZ, TargetRr, TargetRp, TargetRy])
 
         try:
-            self.controller.go_startPose(targetPose)
-            self.addLogs("【INFO】已移动到目标位置")
+            #self.controller.go_startPose(targetPose)
+            # self.addLogs("【INFO】已移动到目标位置")
+            oru_actions.run_sequence_thread(
+                controller=self.controller,
+                poses=[targetPose],  # 单点也放进列表
+                addLogs=self.addLogs,
+                desc="移动到目标位置",
+                speed=0.01,  # 与 go_startPose 里一致，可按需改
+                acc=0.003,
+            )
         except Exception as e:
             self.addLogs(f'【ERROR】移动到工作点失败: {e}')
             return
